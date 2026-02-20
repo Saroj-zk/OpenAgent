@@ -1,0 +1,15 @@
+{
+  "alex.reed@gmail.com": {
+    "email": "alex.reed@gmail.com",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    "authType": "google",
+    "lastLogin": "2026-02-05T11:34:17.473Z",
+    "username": "lonewolff"
+  },
+  "0x9527c9fd391ccd48f7278fe7c7c09b786a0bb832": {
+    "address": "0x9527c9fd391ccd48f7278fe7c7c09b786a0bb832",
+    "authType": "web3",
+    "username": "wolffrain",
+    "lastLogin": "2026-02-20T14:52:10.705Z"
+  }
+}

@@ -8,7 +8,8 @@ import AgentDetails from './pages/AgentDetails';
 import AuctionDetails from './pages/AuctionDetails';
 import Identity from './pages/Identity';
 import Admin from './pages/Admin';
-import Dashboard from './pages/Dashboard'; // Added import for Dashboard
+import Dashboard from './pages/Dashboard';
+import Forum from './pages/Forum';
 import Footer from './components/Footer';
 import { WalletProvider } from './context/WalletContext';
 import { useEffect } from 'react';
@@ -40,6 +41,7 @@ function App() {
               <Route path="/agent/:id" element={<AgentDetails />} />
               <Route path="/identity" element={<Identity />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/forum" element={<Forum />} />
               <Route path="*" element={<Home />} />
             </Routes>
           </main>

@@ -25,7 +25,7 @@ const AgentAvatar = ({ image, name, size = '48px', style = {} }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: parseInt(size) / 2.5 + 'px',
+        fontSize: size.endsWith('px') ? parseInt(size) / 2.5 + 'px' : '1.5rem',
         color: 'white',
         fontWeight: 'bold',
         textTransform: 'uppercase',

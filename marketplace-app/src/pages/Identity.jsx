@@ -37,7 +37,7 @@ const Identity = () => {
         setIsSubmitting(true);
         console.log("Attempting to claim identity:", cleanName);
 
-        const result = saveUsername(cleanName);
+        const result = await saveUsername(cleanName);
 
         if (result.success) {
             // The useEffect will handle navigation when 'username' state updates in context
@@ -49,15 +49,11 @@ const Identity = () => {
     };
 
     // If not connected, show a message instead of a black screen
-    if (!isConnected) {
-        return (
-            <div className="container" style={{ padding: '160px 0', textAlign: 'center' }}>
-                <h2 style={{ color: '#fff', marginBottom: '24px' }}>Please connect your wallet</h2>
-                <p style={{ color: '#666' }}>You need to be connected to the collective to claim an identity.</p>
-                <button className="btn btn-primary" onClick={() => navigate('/')} style={{ marginTop: '32px' }}>Return Home</button>
-            </div>
-        );
-    }
+    <div className="container" style={{ padding: '160px 0', textAlign: 'center' }}>
+        <h2 style={{ color: '#fff', marginBottom: '24px' }}>Identity Required</h2>
+        <p style={{ color: '#666' }}>You must connect your wallet and register a unique identifier to proceed.</p>
+        <button className="btn btn-primary" onClick={() => navigate('/')} style={{ marginTop: '32px' }}>Return to Home</button>
+    </div>
 
     return (
         <div className="container animate-fade-in-up" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '100px', paddingBottom: '100px' }}>
@@ -67,15 +63,15 @@ const Identity = () => {
                     <User size={32} color="#fff" />
                 </div>
 
-                <h1 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '16px', letterSpacing: '-0.04em' }}>Claim Your Identity</h1>
+                <h1 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '16px', letterSpacing: '-0.04em' }}>Register Identity</h1>
                 <p style={{ color: '#666', fontSize: '16px', lineHeight: '1.6', marginBottom: '40px' }}>
-                    Every soul in the collective must have a unique name. Choose yours carefully—it will be your legacy.
+                    Every participant in the registry must claim a unique username. This record is immutable and stored on-chain.
                 </p>
 
                 <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
                     <div style={{ marginBottom: '24px' }}>
                         <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#444', marginBottom: '12px' }}>
-                            CHOOSE A UNIQUE NAME
+                            CHOOSE A UNIQUE USERNAME
                         </label>
                         <div style={{ position: 'relative' }}>
                             <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#333', fontWeight: '800' }}>@</span>
@@ -109,13 +105,13 @@ const Identity = () => {
                         className="btn btn-primary"
                         style={{ width: '100%', height: '60px', borderRadius: '18px' }}
                     >
-                        {isSubmitting ? 'Securing Identity...' : 'Confirm Name'}
+                        {isSubmitting ? 'Registering...' : 'Claim Identity'}
                     </button>
                 </form>
 
                 <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', color: '#333' }}>
                     <ShieldCheck size={14} />
-                    <span style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>PERMANENT ON-CHAIN IDENTITY (MOCK)</span>
+                    <span style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em' }}>VERIFIED REGISTRY IDENTITY</span>
                 </div>
             </div>
         </div>

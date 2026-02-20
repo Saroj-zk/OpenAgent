@@ -1,120 +1,149 @@
-import React, { useMemo } from 'react';
-import { Gavel, Clock, ArrowRight, Terminal, User, Sparkles } from 'lucide-react';
+import React from 'react';
+import { Clock, ArrowRight, Terminal, Cpu } from 'lucide-react';
 import { useWallet } from '../context/WalletContext';
 import { useNavigate } from 'react-router-dom';
-import AgentAvatar from '../components/AgentAvatar';
+import './Auctions.css';
 
 const Auctions = () => {
     const navigate = useNavigate();
-    const { isConnected, auctions, loading } = useWallet();
+    const { auctions, loading } = useWallet();
+
+    // Mock Live Activity Data
+    const marketEvents = [
+        { id: 1, text: "New bid: 15.20 ETH on <strong>Quant-X</strong>", time: "2m ago" },
+        { id: 2, text: "<strong>Cyber-Scribe</strong> listing updated", time: "5m ago" },
+        { id: 3, text: "Sale confirmed: <strong>Alpha-01</strong> for 42.5 ETH", time: "12m ago" },
+        { id: 4, text: "New listing: <strong>Neural-Link</strong> by @vault", time: "18m ago" },
+        { id: 5, text: "Auction closing: <strong>Data-Stream</strong> in 45m", time: "24m ago" },
+    ];
+
+    const soldItems = [
+        { name: "Nova-Tech", price: "24.5 ETH" },
+        { name: "Ghost-Protocol", price: "12.2 ETH" },
+        { name: "Satoshi-Bot", price: "88.0 ETH" },
+        { name: "Iron-Forge", price: "15.7 ETH" },
+        { name: "Neon-Pulse", price: "31.4 ETH" },
+    ];
 
     if (loading) {
         return (
-            <div className="container" style={{ paddingTop: '200px', textAlign: 'center' }}>
-                <Terminal size={48} className="animate-pulse" style={{ margin: '0 auto 24px', opacity: 0.2 }} />
-                <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#333' }}>SYNCHRONIZING REGISTRY...</h2>
+            <div className="container" style={{ padding: '200px 0', textAlign: 'center' }}>
+                <Terminal size={32} className="animate-pulse" style={{ margin: '0 auto 24px', opacity: 0.1 }} />
+                <h2 style={{ fontSize: '11px', fontWeight: '600', color: '#666', letterSpacing: '0.1em' }}>INITIALIZING MARKET FEED...</h2>
             </div>
         );
     }
 
     return (
-        <div className="container animate-fade-in-up" style={{ paddingTop: '160px', paddingBottom: '140px' }}>
-
-            <div style={{ marginBottom: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#555', fontSize: '12px', fontWeight: '800', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '16px' }}>
-                        <Terminal size={14} />
-                        <span>ACTIVE SESSIONS</span>
-                    </div>
-                    <h1 style={{ fontSize: '64px', fontWeight: '800', marginBottom: '24px', letterSpacing: '-0.05em' }}>Auctions.</h1>
-                    <p style={{ color: '#666', maxWidth: '600px', fontSize: '18px', lineHeight: '1.6' }}>
-                        The high-stakes registry. Discover agents currently open for public bidding across the collective.
-                    </p>
+        <>
+            {/* Top Scrolling Sold Ticker */}
+            <div className="sold-ticker-wrapper">
+                <div className="sold-ticker">
+                    {[...soldItems, ...soldItems].map((item, i) => (
+                        <div key={i} className="sold-item">
+                            <span>Recently Sold:</span>
+                            <strong>{item.name}</strong>
+                            <span>{item.price}</span>
+                        </div>
+                    ))}
                 </div>
             </div>
 
-            {/* List Design */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {auctions.map((auction) => (
-                    <div
-                        key={auction.id}
-                        onClick={() => navigate(`/auction/${auction.id}`)}
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '100px 1.5fr 1fr 1fr 1fr 60px',
-                            alignItems: 'center',
-                            background: 'rgba(255,255,255,0.01)',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '24px',
-                            padding: '24px 32px',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.025)';
-                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.01)';
-                            e.currentTarget.style.borderColor = 'var(--border-color)';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                        }}
-                    >
-                        {/* Avatar */}
-                        <div style={{ width: '64px', height: '64px', borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                            <AgentAvatar image={auction.image} name={auction.name} size="100%" />
-                        </div>
+            <div className="container auctions-container animate-fade-in-up">
 
-                        {/* Identity */}
-                        <div>
-                            <div style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>{auction.name}</div>
-                            <div style={{ fontSize: '12px', color: '#555', fontWeight: '700' }}>{auction.role}</div>
+                {/* Auction Header */}
+                <div className="auctions-header">
+                    <div className="market-status-bar">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span className="status-dot"></span>
+                            <span>Live Auctions</span>
                         </div>
-
-                        {/* Current Bid */}
-                        <div>
-                            <div style={{ fontSize: '11px', fontWeight: '800', color: '#444', textTransform: 'uppercase', marginBottom: '8px' }}>Active Bid</div>
-                            <div style={{ fontSize: '16px', fontWeight: '800', color: '#fff', fontFamily: 'var(--font-mono)' }}>
-                                {auction.highestBid} {auction.currency}
-                            </div>
-                        </div>
-
-                        {/* Timer */}
-                        <div>
-                            <div style={{ fontSize: '11px', fontWeight: '800', color: '#444', textTransform: 'uppercase', marginBottom: '8px' }}>Ends In</div>
-                            <div style={{ fontSize: '16px', fontWeight: '800', color: '#ff4d4d', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Clock size={14} /> {auction.timeLeft}
-                            </div>
-                        </div>
-
-                        {/* Top Challenger */}
-                        <div>
-                            <div style={{ fontSize: '11px', fontWeight: '800', color: '#444', textTransform: 'uppercase', marginBottom: '8px' }}>Top Challenger</div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <User size={10} color="#555" />
-                                </div>
-                                <span style={{ fontSize: '14px', fontWeight: '700', color: '#888' }}>{auction.highestBidder}</span>
-                            </div>
-                        </div>
-
-                        {/* Action */}
-                        <div style={{ textAlign: 'right' }}>
-                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                <ArrowRight size={18} color="#fff" />
-                            </div>
-                        </div>
+                        <span style={{ margin: '0 8px', opacity: 0.2 }}>|</span>
+                        <span>Total Volume: 1.4k Units</span>
+                        <span style={{ margin: '0 8px', opacity: 0.2 }}>|</span>
+                        <span>Average Sale: 12.4 ETH</span>
+                        <span style={{ margin: '0 8px', opacity: 0.2 }}>|</span>
+                        <span>Active Auctions: 42</span>
                     </div>
-                ))}
-            </div>
 
-            <div style={{ marginTop: '60px', textAlign: 'center' }}>
-                <p style={{ color: '#222', fontSize: '12px', fontWeight: '800', letterSpacing: '0.1em' }}>
-                    PRIVATE KEYS & DATA PACKS ARE TRANSFERRED AUTOMATICALLY UPON SETTLEMENT.
-                </p>
+                    <h1 className="auctions-title">Premium Digital Auctions.</h1>
+                    <p className="auctions-subtitle">
+                        Bid on exclusive verified digital assets.
+                        Each item is unique, secure, and ready for transfer.
+                    </p>
+                </div>
+
+                <div className="market-layout">
+                    {/* Main Ticker List */}
+                    <div className="auctions-list">
+                        {auctions.map((auction) => (
+                            <div
+                                key={auction.id}
+                                onClick={() => navigate(`/auction/${auction.id}`)}
+                                className="ticker-item"
+                            >
+                                <div className="live-badge">
+                                    <span className="status-dot"></span>
+                                    LIVE
+                                </div>
+
+                                <div className="ticker-icon">
+                                    <Cpu size={20} style={{ opacity: 0.6 }} />
+                                </div>
+
+                                <div className="ticker-main">
+                                    <h3 className="ticker-name">{auction.name}</h3>
+                                    <span className="ticker-meta">{auction.role}</span>
+                                </div>
+
+                                <div className="ticker-tag">
+                                    <Clock size={12} />
+                                    Ending in {auction.timeLeft || '24h'}
+                                </div>
+
+                                <div className="ticker-price">
+                                    <div className="price-header">
+                                        <span className="price-lbl">Current High Bid</span>
+                                    </div>
+                                    <span className="price-current">{auction.highestBid} {auction.currency}</span>
+                                </div>
+
+                                <div className="ticker-action">
+                                    <div className="ticker-arrow">
+                                        <ArrowRight size={14} />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+
+                        {auctions.length === 0 && (
+                            <div style={{ padding: '80px 0', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '8px' }}>
+                                <p style={{ color: '#666', fontSize: '14px' }}>No active auctions found at the moment.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Sidebar Activity Feed */}
+                    <aside className="activity-feed">
+                        <div className="feed-header">
+                            <span className="feed-title">Recent Happenings</span>
+                            <div className="live-indicator">
+                                <span className="status-dot" style={{ background: '#ff4d4d', border: 'none', boxShadow: 'none' }}></span>
+                                UPDATING
+                            </div>
+                        </div>
+                        <div className="event-list">
+                            {marketEvents.map((event) => (
+                                <div key={event.id} className="event-item">
+                                    <div className="event-text" dangerouslySetInnerHTML={{ __html: event.text.replace('bid:', 'offer:').replace('Sale confirmed:', 'Purchase complete:') }}></div>
+                                    <div className="event-time">{event.time}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </aside>
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

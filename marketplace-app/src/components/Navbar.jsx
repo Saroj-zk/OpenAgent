@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
-import { Search, Wallet, Terminal, User, ShieldCheck, LogOut } from 'lucide-react';
+import { Search, Terminal, User, ShieldCheck, LogOut, Mail } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
+import LoginModal from './LoginModal';
 import './Navbar.css';
 
 const Navbar = () => {
-    const { isConnected, account, username, connectWallet, disconnectWallet, loading } = useWallet();
+    const { isConnected, account, username, disconnectWallet, loading } = useWallet();
+    const [isLoginOpen, setIsLoginOpen] = React.useState(false);
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -25,15 +27,8 @@ const Navbar = () => {
                 setTimeout(() => window.location.reload(), 100);
             }
         } else {
-            const success = await connectWallet();
-            if (success) {
-                // Connection is handled by useEffect for redirection
-            }
+            setIsLoginOpen(true);
         }
-    };
-
-    const shortenAddress = (addr) => {
-        return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
     };
 
     return (
@@ -48,6 +43,7 @@ const Navbar = () => {
                     <Link to="/explore" className={`nav-link ${location.pathname === '/explore' ? 'active' : ''}`}>Marketplace</Link>
                     <Link to="/auctions" className={`nav-link ${location.pathname === '/auctions' ? 'active' : ''}`}>Auctions</Link>
                     <Link to="/sell" className={`nav-link ${location.pathname === '/sell' ? 'active' : ''}`}>Deploy</Link>
+                    <Link to="/forum" className={`nav-link ${location.pathname === '/forum' ? 'active' : ''}`}>Forum</Link>
                 </div>
 
                 <div className="nav-actions" style={{ display: 'flex', gap: '12px' }}>
@@ -63,7 +59,8 @@ const Navbar = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 {username ? (
                                     <>
-                                        <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '12px', fontWeight: '800', color: '#fff' }}>
+                                        <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '12px', fontWeight: '800', color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <Mail size={12} style={{ opacity: 0.6 }} />
                                             @{username}
                                         </div>
                                         <span style={{ color: '#444' }}>|</span>
@@ -71,11 +68,13 @@ const Navbar = () => {
                                 ) : (
                                     <ShieldCheck size={14} color="#ff4d4d" />
                                 )}
-                                <span style={{ opacity: 0.6 }}>{shortenAddress(account)}</span>
+                                <span style={{ opacity: 0.6, fontSize: '11px' }}>
+                                    {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : ''}
+                                </span>
                             </div>
                         ) : (
                             <>
-                                <Wallet size={16} style={{ marginRight: '8px' }} />
+                                <User size={16} style={{ marginRight: '8px' }} />
                                 Connect Wallet
                             </>
                         )}
@@ -103,6 +102,11 @@ const Navbar = () => {
                     )}
                 </div>
             </div>
+
+            <LoginModal
+                isOpen={isLoginOpen}
+                onClose={() => setIsLoginOpen(false)}
+            />
         </nav>
     );
 };

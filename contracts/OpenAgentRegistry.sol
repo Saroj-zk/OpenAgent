@@ -43,6 +43,7 @@ contract OpenAgentRegistry {
     event IdentityClaimed(address indexed user, string username);
     event AgentListed(uint256 indexed id, address indexed seller, uint256 price);
     event AgentSold(uint256 indexed id, address indexed buyer, uint256 price);
+    event AgentDelisted(uint256 indexed id, address indexed seller);
     event AuctionStarted(uint256 indexed id, address indexed seller, uint256 startTime, uint256 endTime);
     event BidPlaced(uint256 indexed id, address indexed bidder, uint256 amount);
     event AuctionSettled(uint256 indexed id, address indexed winner, uint256 amount);
@@ -92,6 +93,16 @@ contract OpenAgentRegistry {
         listing.seller.transfer(sellerProceeds);
 
         emit AgentSold(_id, msg.sender, msg.value);
+    }
+
+    function delistAgent(uint256 _id) external {
+        Listing storage listing = listings[_id];
+        require(listing.active, "Listing not active");
+        require(msg.sender == listing.seller, "Only seller can delist");
+
+        listing.active = false;
+        
+        emit AgentDelisted(_id, msg.sender);
     }
 
     // --- Auctions ---

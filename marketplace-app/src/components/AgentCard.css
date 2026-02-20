@@ -1,116 +1,206 @@
-.agent-card-opensea {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+.agent-item-card {
     display: flex;
     flex-direction: column;
-    text-decoration: none;
-    cursor: pointer;
-    height: 100%;
-}
-
-.agent-card-opensea:hover {
-    transform: translateY(-6px);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-    background: rgba(255, 255, 255, 0.03);
-}
-
-.card-image-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    background: rgba(255, 255, 255, 0.02);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
     overflow: hidden;
+    text-decoration: none;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    height: 100%;
+    position: relative;
+    backdrop-filter: blur(20px);
 }
 
-.card-overlay {
+.agent-item-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-8px);
+    box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(0, 255, 136, 0.05);
+}
+
+.agent-image-container {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+}
+
+.agent-image-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+.agent-badge-system {
     position: absolute;
     top: 12px;
-    right: 12px;
+    left: 12px;
+    z-index: 2;
 }
 
-.overlay-badge {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 4px 10px;
-    border-radius: 6px;
+.badge-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    color: #fff;
-    font-weight: 700;
+    backdrop-filter: blur(12px);
+    padding: 6px 12px;
+    border-radius: 100px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.card-info {
-    padding: 16px;
+.badge-item.active {
+    color: var(--brand-primary);
+    border-color: rgba(0, 255, 136, 0.3);
+}
+
+.badge-item span {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.agent-content-area {
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    flex: 1;
+    flex-grow: 1;
+    gap: 12px;
 }
 
-.info-main {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.agent-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.builder-name {
-    font-size: 13px;
-    color: #666;
-}
-
-.info-footer {
+.agent-meta-top {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    margin-top: auto;
+    align-items: center;
 }
 
-.price-section {
+.agent-id {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.agent-model-tag {
+    font-size: 9px;
+    font-weight: 950;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.agent-display-name {
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.agent-creator-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.verified-icon {
+    color: var(--brand-secondary);
+}
+
+.agent-brief-description {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 2px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-weight: 450;
+}
+
+.agent-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.stat-unit {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.price-label {
-    font-size: 11px;
-    color: #555;
+.stat-label {
+    font-size: 9px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.15);
     text-transform: uppercase;
-    font-weight: 700;
+    letter-spacing: 0.05em;
 }
 
-.price-value {
-    font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: 700;
+.stat-data {
+    font-size: 13px;
+    font-weight: 800;
     color: #fff;
+    font-family: var(--font-mono);
 }
 
-.role-tag {
+.agent-pricing-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 16px;
+}
+
+.price-desc {
+    font-size: 9px;
+    font-weight: 950;
+    color: rgba(255, 255, 255, 0.15);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.price-amount {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    font-family: var(--font-mono);
+}
+
+.zap-icon {
+    color: var(--brand-primary);
+}
+
+.agent-role-pill {
     font-size: 10px;
-    color: #888;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 3px 8px;
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    font-weight: 600;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 6px 12px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }

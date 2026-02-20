@@ -2,47 +2,54 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    padding: 18px 0;
-    background: rgba(5, 5, 5, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    right: 0;
     z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    height: 80px;
+    background: rgba(5, 5, 5, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
 }
 
 .nav-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 }
 
 .logo {
-    font-family: 'Space Grotesk', sans-serif;
-    /* Keep the vibe font for logo or switch to Inter? Let's use system font for cleanness */
-    font-family: var(--font-main);
-    font-size: 20px;
-    font-weight: 800;
-    color: #fff;
     display: flex;
     align-items: center;
     gap: 12px;
-    letter-spacing: -0.5px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: -0.04em;
 }
 
 .nav-links {
     display: flex;
-    gap: 32px;
+    gap: 40px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .nav-link {
-    color: var(--text-secondary);
-    font-size: 14px;
-    font-weight: 500;
-    transition: color 0.2s;
+    font-size: 13px;
+    font-weight: 700;
+    color: #444;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.3s;
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.nav-link.active {
     color: #fff;
 }
 

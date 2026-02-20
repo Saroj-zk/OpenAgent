@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import Hero from '../components/Hero';
-import AgentCard from '../components/AgentCard';
+import CompactAgentCard from '../components/CompactAgentCard';
 import CommunityStory from '../components/CommunityStory';
 import TrendingSection from '../components/TrendingSection';
 import Features from '../components/Features';
@@ -52,58 +52,69 @@ const Home = () => {
             <TrendingSection agents={[...marketplaceAgents].reverse()} />
 
             {/* Marketplace Main Container */}
-            <section className="container" style={{ paddingBottom: '140px' }}>
+            <section className="container" style={{ paddingBottom: '160px', paddingTop: '40px' }}>
 
                 {/* Header Section */}
-                <div style={{ marginBottom: '64px', textAlign: 'center' }}>
-                    <span className="section-label">THE COLLECTIVE CRAFT</span>
-                    <h2 style={{ fontSize: '48px', fontWeight: '800', marginBottom: '20px', letterSpacing: '-0.05em' }}>Designed by Humans. <br /> Built for You.</h2>
-                    <p style={{ color: '#777', maxWidth: '540px', margin: '0 auto', fontSize: '18px', lineHeight: '1.6' }}>
-                        Directly support the {marketplaceAgents.length} independent minds shaping the future of decentralized logic. No middleman. Just the craft.
+                <div style={{ marginBottom: '80px', textAlign: 'center' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px', padding: '6px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '100px' }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--brand-primary)' }}></div>
+                        <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Registry Snapshot</span>
+                    </div>
+                    <h2 style={{ fontSize: '64px', fontWeight: '950', marginBottom: '24px', letterSpacing: '-0.06em', color: '#fff', lineHeight: '1.0' }}>Built by Builders. <br /> <span style={{ opacity: 0.3 }}>Verified by code.</span></h2>
+                    <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto', fontSize: '20px', lineHeight: '1.6', fontWeight: '450' }}>
+                        Browse the current census of {marketplaceAgents.length} independent AI agents ready for deployment.
                     </p>
                 </div>
 
                 {/* Toolbar: Search, Tabs, and Sort */}
-                <div style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '20px', marginBottom: '40px', backdropFilter: 'blur(10px)' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{
+                    background: 'rgba(255,255,255,0.01)',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    borderRadius: '28px',
+                    padding: '16px',
+                    marginBottom: '48px',
+                    backdropFilter: 'blur(20px)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+                }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
                         {/* Top Row: Search & Category Tabs */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
-                            <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
-                                <Search size={18} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#333' }} />
+                            <div style={{ position: 'relative', flex: 1, minWidth: '320px' }}>
+                                <Search size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.2)' }} />
                                 <input
                                     type="text"
-                                    placeholder="Search for an agent or a capability..."
+                                    placeholder="Search the registry..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        background: '#000',
-                                        border: '1px solid var(--border-color)',
-                                        borderRadius: '16px',
-                                        padding: '16px 20px 16px 54px',
+                                        background: 'rgba(0,0,0,0.3)',
+                                        border: '1px solid rgba(255,255,255,0.05)',
+                                        borderRadius: '18px',
+                                        padding: '18px 20px 18px 56px',
                                         color: 'white',
-                                        fontSize: '15px',
+                                        fontSize: '16px',
                                         outline: 'none',
-                                        transition: 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
+                                        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                                     }}
-                                    onFocus={(e) => e.target.style.borderColor = '#555'}
-                                    onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
+                                    onFocus={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.2)'; e.target.style.background = 'rgba(0,0,0,0.5)'; }}
+                                    onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.05)'; e.target.style.background = 'rgba(0,0,0,0.3)'; }}
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '8px', background: '#000', padding: '5px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                            <div style={{ display: 'flex', gap: '6px', background: 'rgba(0,0,0,0.2)', padding: '6px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.05)' }}>
                                 {['All', 'Newest', 'Top Rated'].map(filter => (
                                     <button
                                         key={filter}
                                         onClick={() => setSortBy(filter.toLowerCase().replace(' ', '_'))}
                                         style={{
                                             padding: '12px 24px',
-                                            borderRadius: '12px',
+                                            borderRadius: '14px',
                                             border: 'none',
-                                            background: sortBy.includes(filter.toLowerCase().split(' ')[0]) ? 'rgba(255,255,255,0.05)' : 'transparent',
-                                            color: sortBy.includes(filter.toLowerCase().split(' ')[0]) ? '#fff' : '#444',
-                                            fontSize: '13px',
+                                            background: sortBy.includes(filter.toLowerCase().split(' ')[0]) ? 'rgba(255,255,255,0.06)' : 'transparent',
+                                            color: sortBy.includes(filter.toLowerCase().split(' ')[0]) ? '#fff' : 'rgba(255,255,255,0.3)',
+                                            fontSize: '14px',
                                             fontWeight: '800',
                                             textTransform: 'uppercase',
                                             letterSpacing: '0.1em',
@@ -118,21 +129,21 @@ const Home = () => {
                         </div>
 
                         {/* Bottom Row: Advanced Filters & Results Count */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
-                            <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px', maxWidth: '70%' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div className="no-scrollbar" style={{ display: 'flex', gap: '10px', overflowX: 'auto', maxWidth: '75%', paddingBottom: '4px' }}>
                                 {categories.map(cat => (
                                     <button
                                         key={cat}
                                         onClick={() => setActiveTab(cat)}
                                         style={{
-                                            background: activeTab === cat ? '#fff' : 'transparent',
-                                            color: activeTab === cat ? '#000' : '#666',
+                                            background: activeTab === cat ? '#fff' : 'rgba(255,255,255,0.02)',
+                                            color: activeTab === cat ? '#000' : 'rgba(255,255,255,0.4)',
                                             border: '1px solid',
-                                            borderColor: activeTab === cat ? '#fff' : 'var(--border-color)',
-                                            padding: '8px 20px',
+                                            borderColor: activeTab === cat ? '#fff' : 'rgba(255,255,255,0.05)',
+                                            padding: '10px 24px',
                                             borderRadius: '100px',
-                                            fontSize: '13px',
-                                            fontWeight: '700',
+                                            fontSize: '14px',
+                                            fontWeight: '800',
                                             whiteSpace: 'nowrap',
                                             cursor: 'pointer',
                                             transition: 'all 0.3s'
@@ -143,28 +154,28 @@ const Home = () => {
                                 ))}
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                                <div style={{ fontSize: '13px', color: '#333', fontWeight: '700', letterSpacing: '0.05em' }}>
-                                    {filteredAgents.length} PIECES DISCOVERED
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', fontWeight: '900', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+                                    {filteredAgents.length} IDENTIFIED
                                 </div>
                                 <select
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
                                     style={{
-                                        background: 'transparent',
+                                        background: 'rgba(255,255,255,0.02)',
                                         color: '#fff',
-                                        border: '1px solid var(--border-color)',
-                                        padding: '8px 16px',
-                                        borderRadius: '10px',
-                                        fontSize: '13px',
+                                        border: '1px solid rgba(255,255,255,0.05)',
+                                        padding: '10px 20px',
+                                        borderRadius: '12px',
+                                        fontSize: '14px',
                                         fontWeight: '700',
                                         outline: 'none',
                                         cursor: 'pointer'
                                     }}
                                 >
                                     <option value="newest">Sort By: Newest</option>
-                                    <option value="price_low">Sort By: Price (Low)</option>
-                                    <option value="price_high">Sort By: Price (High)</option>
+                                    <option value="price_low">Price (Low)</option>
+                                    <option value="price_high">Price (High)</option>
                                 </select>
                             </div>
                         </div>
@@ -174,12 +185,12 @@ const Home = () => {
                 {/* Responsive Grid for Agents */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                    gap: '24px'
+                    gridTemplateColumns: 'repeat(5, 1fr)',
+                    gap: '16px'
                 }}>
                     {filteredAgents.length > 0 ? (
-                        filteredAgents.map((agent) => (
-                            <AgentCard key={agent.id} agent={agent} />
+                        [...filteredAgents].sort(() => 0.5 - Math.random()).slice(0, 5).map((agent) => (
+                            <CompactAgentCard key={agent.id} agent={agent} />
                         ))
                     ) : (
                         <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '100px 0', border: '1px dashed #222', borderRadius: '32px' }}>
@@ -198,31 +209,7 @@ const Home = () => {
                 )}
             </section>
 
-            {/* Narrative Sections */}
-            <section style={{ background: '#080808', padding: '160px 0', position: 'relative', overflow: 'hidden', borderTop: '1px solid var(--border-color)' }}>
-                <div className="container" style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center', textAlign: 'center' }}>
-                    <div style={{ maxWidth: '700px' }}>
-                        <span className="section-label">THE COLLECTIVE PROMISE</span>
-                        <h2 style={{ fontSize: '56px', fontWeight: '800', lineHeight: '1.0', marginBottom: '32px', letterSpacing: '-0.05em' }}>
-                            Independent. Unowned. <br /> Built with care.
-                        </h2>
-                        <p style={{ fontSize: '20px', color: '#888', lineHeight: '1.7', marginBottom: '56px' }}>
-                            We didn't build this to be another platform. We built it to be a community.
-                            A home where builders own their work and users have direct access to the most innovative minds in AI.
-                        </p>
-                        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-                            <Link to="/sell" className="btn btn-primary">
-                                Join as a Builder
-                            </Link>
-                            <Link to="/explore" className="btn btn-outline">
-                                Meet the Collective
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-                {/* Subtle visual: builder silhouette or just a glow */}
-                <div style={{ position: 'absolute', right: '-10%', top: '50%', transform: 'translateY(-50%)', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%)', borderRadius: '50%' }}></div>
-            </section>
+
 
             <CommunityStory />
             <Features />

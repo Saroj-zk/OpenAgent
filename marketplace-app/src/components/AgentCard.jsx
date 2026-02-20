@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Heart, ShieldCheck, Zap, Activity } from 'lucide-react';
 import { useWallet } from '../context/WalletContext';
 import AgentAvatar from './AgentAvatar';
 import './AgentCard.css';
@@ -8,39 +8,64 @@ import './AgentCard.css';
 const AgentCard = ({ agent }) => {
     const { username, account } = useWallet();
 
-    // Check if the current user is the owner (mocked logic)
     const isOwner = agent.owner === account || agent.owner === username;
     const ownerName = isOwner && username ? `@${username}` : (agent.owner ? `@${agent.owner.slice(0, 8)}` : '@builder');
 
-    // Random mock of community support
+    // Mocked details for "Detailed" effect
     const supports = React.useMemo(() => Math.floor(Math.random() * 80) + 12, []);
+    const uptime = React.useMemo(() => (98 + Math.random() * 2).toFixed(2), []);
+    const modelType = agent.model || 'GPT-4o';
 
     return (
-        <Link to={`/agent/${agent.id}`} className="agent-card-opensea">
-            <div className="card-image-wrapper">
-                <AgentAvatar image={agent.image} name={agent.name} size="100%" />
-                <div className="card-overlay">
-                    <span className="overlay-badge">Verified by Community</span>
+        <Link to={`/agent/${agent.id}`} className="agent-item-card">
+            <div className="agent-image-container">
+                <AgentAvatar image={agent.image} name={agent.name} size="80%" />
+                <div className="agent-badge-system">
+                    <div className="badge-item active">
+                        <Activity size={10} />
+                        <span>LIVE</span>
+                    </div>
                 </div>
             </div>
 
-            <div className="card-info">
-                <div className="info-main">
-                    <h3 className="agent-name">{agent.name}</h3>
-                    <div className="builder-name">Crafted by {ownerName}</div>
+            <div className="agent-content-area">
+                <div className="agent-meta-top">
+                    <span className="agent-id">ID #{(agent.id % 1000).toString().padStart(3, '0')}</span>
+                    <span className="agent-model-tag">{modelType}</span>
                 </div>
 
-                <div className="info-community" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#555', margin: '4px 0' }}>
-                    <Heart size={12} fill="rgba(255,255,255,0.1)" />
-                    <span>Trusted by {supports} humans</span>
-                </div>
-
-                <div className="info-footer">
-                    <div className="price-section">
-                        <span className="price-label">Builder Price</span>
-                        <div className="price-value">{agent.price} {agent.currency || 'ETH'}</div>
+                <div className="agent-main-title">
+                    <h3 className="agent-display-name">{agent.name}</h3>
+                    <div className="agent-creator-line">
+                        <ShieldCheck size={12} className="verified-icon" />
+                        <span>{ownerName}</span>
                     </div>
-                    <div className="role-tag">{agent.role}</div>
+                </div>
+
+                <p className="agent-brief-description">
+                    {agent.description || "Autonomous agent optimized for specialized task execution and logic processing."}
+                </p>
+
+                <div className="agent-stats-grid">
+                    <div className="stat-unit">
+                        <span className="stat-label">UPTIME</span>
+                        <span className="stat-data">{uptime}%</span>
+                    </div>
+                    <div className="stat-unit">
+                        <span className="stat-label">TRUST</span>
+                        <span className="stat-data">{supports}</span>
+                    </div>
+                </div>
+
+                <div className="agent-pricing-footer">
+                    <div className="price-container">
+                        <span className="price-desc">Current List</span>
+                        <div className="price-amount">
+                            <Zap size={14} className="zap-icon" fill="currentColor" />
+                            <span>{agent.price} {agent.currency || 'ETH'}</span>
+                        </div>
+                    </div>
+                    <div className="agent-role-pill">{agent.role}</div>
                 </div>
             </div>
         </Link>
@@ -48,3 +73,4 @@ const AgentCard = ({ agent }) => {
 };
 
 export default AgentCard;
+

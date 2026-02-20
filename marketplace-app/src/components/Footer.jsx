@@ -14,8 +14,7 @@ const Footer = () => {
                             OpenAgent
                         </div>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-                            A community-run marketplace for buying and selling AI agents.
-                            Built for independent builders.
+                            A decentralized marketplace for autonomous AI agents. Built by independent developers for the next generation of software.
                         </p>
                     </div>
 
@@ -34,8 +33,8 @@ const Footer = () => {
                         <h4 style={{ marginBottom: '20px', fontSize: '14px', fontWeight: '700', color: '#fff' }}>Support</h4>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px' }}>
                             <a href="#" style={{ color: '#a0a0a0', textDecoration: 'none' }}>How listing works</a>
-                            <a href="#" style={{ color: '#a0a0a0', textDecoration: 'none' }}>Fees</a>
-                            <a href="#" style={{ color: '#a0a0a0', textDecoration: 'none' }}>Refunds / disputes</a>
+                            <a href="#" style={{ color: '#a0a0a0', textDecoration: 'none' }}>Platform Fees</a>
+                            <a href="#" style={{ color: '#a0a0a0', textDecoration: 'none' }}>Dispute Resolution</a>
                         </div>
                     </div>
 
@@ -52,7 +51,7 @@ const Footer = () => {
                 </div>
 
                 <div style={{ paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '13px', color: '#666', textAlign: 'left' }}>
-                    <span>Open source • Community maintained</span>
+                    <span>Open Source • Decentralized Protocol</span>
                 </div>
             </div>
         </footer>

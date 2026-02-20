@@ -1,17 +1,5 @@
 [
   {
-    "id": 1770118878331,
-    "name": "Claude Bot",
-    "role": "Trading Bot",
-    "price": "1",
-    "description": "this bot trades automatically on your behalf.",
-    "owner": "lonewolf",
-    "image": "/assets/agent2.png",
-    "status": "New",
-    "creator": "lonewolf",
-    "dateCreated": "2026-02-03T11:41:18.331Z"
-  },
-  {
     "id": 1,
     "name": "Nexus Cyber",
     "role": "SecOps",
@@ -43,5 +31,185 @@
     "description": "Generative art and design director agent. Creates consistent brand assets and UI mockups.",
     "owner": "0x19c...d922",
     "creator": "Muse Collective"
+  },
+  {
+    "id": 101,
+    "name": "Volatility Viper",
+    "role": "Trading Bot",
+    "price": "2.45",
+    "image": "/assets/agent1.png",
+    "status": "Active",
+    "description": "High-frequency trading agent optimized for volatile crypto markets. Uses advanced sentiment analysis and order book depth.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "ETH",
+    "model": "GPT-4o",
+    "tags": [
+      "Trading",
+      "Finance"
+    ],
+    "dateCreated": "2026-02-19T10:00:00.000Z"
+  },
+  {
+    "id": 102,
+    "name": "ZeroTrust Sentinel",
+    "role": "SecOps",
+    "price": "3.80",
+    "image": "/assets/agent2.png",
+    "status": "Active",
+    "description": "Autonomous security auditor that monitors smart contracts for vulnerabilities and anomalous transaction patterns in real-time.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "ETH",
+    "model": "Claude 3.5 Sonnet",
+    "tags": [
+      "Security",
+      "SecOps"
+    ],
+    "dateCreated": "2026-02-19T10:05:00.000Z"
+  },
+  {
+    "id": 103,
+    "name": "Flux Architect",
+    "role": "Engineer",
+    "price": "1.95",
+    "image": "/assets/agent3.png",
+    "status": "Active",
+    "description": "AI systems architect designed to build scalable microservices and manage Kubernetes clusters with minimal human oversight.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "ETH",
+    "model": "DeepSeek-V3",
+    "tags": [
+      "Coding",
+      "Infra"
+    ],
+    "dateCreated": "2026-02-19T10:10:00.000Z"
+  },
+  {
+    "id": 104,
+    "name": "Chronos Researcher",
+    "role": "Research",
+    "price": "0.75",
+    "image": "/assets/agent1.png",
+    "status": "Active",
+    "description": "Accelerates academic research by synthesizing thousands of papers across disciplines and generating comprehensive literature reviews.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "ETH",
+    "model": "Llama 3.1",
+    "tags": [
+      "Research",
+      "NLP"
+    ],
+    "dateCreated": "2026-02-19T10:15:00.000Z"
+  },
+  {
+    "id": 105,
+    "name": "Nebula Creative",
+    "role": "Creative",
+    "price": "0.42",
+    "image": "/assets/agent2.png",
+    "status": "Active",
+    "description": "A multi-modal agent for cinematic storytelling, capable of generating scripts, storyboards, and initial frames for digital media.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "ETH",
+    "model": "GPT-4o",
+    "tags": [
+      "Creative",
+      "Vision"
+    ],
+    "dateCreated": "2026-02-19T10:20:00.000Z"
+  },
+  {
+    "id": 106,
+    "name": "Void Auditor",
+    "role": "Security",
+    "price": "5.20",
+    "image": "/assets/agent3.png",
+    "status": "Active",
+    "description": "Penetration testing agent that identifies zero-day exploits in complex network infrastructures and provides prioritized remediation steps.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "SOL",
+    "model": "Custom",
+    "tags": [
+      "Security",
+      "Exploits"
+    ],
+    "dateCreated": "2026-02-19T10:25:00.000Z"
+  },
+  {
+    "id": 107,
+    "name": "Synapse Analyst",
+    "role": "NLP",
+    "price": "0.90",
+    "image": "/assets/agent1.png",
+    "status": "Active",
+    "description": "Uncovers deep insights from unstructured customer feedback and enterprise communication data using advanced semantic modeling.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "USDC",
+    "model": "Claude 3.5 Sonnet",
+    "tags": [
+      "NLP",
+      "Analyst"
+    ],
+    "dateCreated": "2026-02-19T10:30:00.000Z"
+  },
+  {
+    "id": 108,
+    "name": "Glitch Hunter",
+    "role": "Debugger",
+    "price": "1.10",
+    "image": "/assets/agent2.png",
+    "status": "Active",
+    "description": "Autonomous debugger that hooks into CI/CD pipelines to catch race conditions and memory leaks before they reach production.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "ETH",
+    "model": "GPT-4o",
+    "tags": [
+      "Coding",
+      "QA"
+    ],
+    "dateCreated": "2026-02-19T10:35:00.000Z"
+  },
+  {
+    "id": 109,
+    "name": "Omega Strategist",
+    "role": "Trading Bot",
+    "price": "8.50",
+    "image": "/assets/agent3.png",
+    "status": "Active",
+    "description": "Institutional-grade trading strategist capable of managing multi-asset portfolios with complex hedging and liquidation protection.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "ETH",
+    "model": "Proprietary",
+    "tags": [
+      "Trading",
+      "Finance"
+    ],
+    "dateCreated": "2026-02-19T10:40:00.000Z"
+  },
+  {
+    "id": 110,
+    "name": "Catalyst Vision",
+    "role": "Vision",
+    "price": "1.50",
+    "image": "/assets/agent1.png",
+    "status": "Active",
+    "description": "Edge-optimized computer vision agent for industrial automation, specializing in quality control and real-time object tracking.",
+    "owner": "@saroj",
+    "creator": "@saroj",
+    "currency": "ETH",
+    "model": "GPT-4o-vision",
+    "tags": [
+      "Vision",
+      "Industrial"
+    ],
+    "dateCreated": "2026-02-19T10:45:00.000Z"
   }
 ]

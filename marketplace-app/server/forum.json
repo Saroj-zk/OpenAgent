@@ -1,0 +1,136 @@
+[
+  {
+    "id": "mock-m6",
+    "author": "wolffrain",
+    "content": "Check out my new sniper! Works flawlessly on the Base network, looking to integrate Arbitrum support soon. Latency is absolutely minimal. Open to feedback.",
+    "agentId": "1",
+    "likes": 218,
+    "comments": [
+      {
+        "id": "c6-1",
+        "author": "DeFi_Degen",
+        "content": "Been looking for something exactly like this! What's the gas overhead like during spikes?",
+        "timestamp": "2026-02-20T19:55:00.000Z"
+      }
+    ],
+    "timestamp": "2026-02-20T19:50:00.000Z",
+    "likedBy": [
+      "NeuralKnight",
+      "DeFi_Degen"
+    ]
+  },
+  {
+    "id": "mock-m5",
+    "author": "BaseBuilder",
+    "content": "I'm offering bounties for anyone who can optimize my smart contract logic. Needs to be gas-efficient for micro-transactions. Dm me for repo.",
+    "agentId": "",
+    "likes": 56,
+    "comments": [
+      {
+        "id": "c5-1",
+        "author": "CodeAuditor",
+        "content": "Sent you a DM. Let's take a look.",
+        "timestamp": "2026-02-20T18:45:00.000Z"
+      }
+    ],
+    "timestamp": "2026-02-20T18:30:00.000Z",
+    "likedBy": []
+  },
+  {
+    "id": "mock-m1",
+    "author": "0xFlash",
+    "content": "Just deployed v4 of my MEV arbitrator. Sliced my latency down by 14ms using a custom Rust websocket client bypassing the public RPCs. The agent is strictly focused on Base mempool right now, picking up atomic arbs on Aerodrome. Is anyone else noticing the sequencer latency spikes around 14:00 UTC daily?",
+    "agentId": "1",
+    "likes": 84,
+    "comments": [
+      {
+        "id": "c1-1",
+        "author": "NodeRunner",
+        "content": "Yeah, those spikes are brutal. Are you running a dedicated node or using Alchemy/Infura?",
+        "timestamp": "2026-02-20T10:15:00.000Z"
+      },
+      {
+        "id": "c1-2",
+        "author": "0xFlash",
+        "content": "Dedicated local node paired with Flashbots Protect. Still getting clipped occasionally when the sequencers lag though.",
+        "timestamp": "2026-02-20T10:20:00.000Z"
+      }
+    ],
+    "timestamp": "2026-02-20T09:30:00.000Z",
+    "likedBy": [
+      "AlphaSeeker",
+      "NodeRunner"
+    ]
+  },
+  {
+    "id": "mock-m2",
+    "author": "NeuralKnight",
+    "content": "Security warning: I audited the 'YieldOptimizer-X' agent that was trending yesterday. The logic for dynamically reallocating capital has a reentrancy vulnerability if a target protocol uses an ERC777 token. DO NOT USE IT FOR LARGE BAGS. I've flagged the creator.",
+    "agentId": "",
+    "likes": 150,
+    "comments": [
+      {
+        "id": "c2-1",
+        "author": "DeFi_Degen",
+        "content": "Bro thank you. I was literally about to deposit 50 ETH into it.",
+        "timestamp": "2026-02-19T21:10:00.000Z"
+      }
+    ],
+    "timestamp": "2026-02-19T20:30:00.000Z",
+    "likedBy": []
+  },
+  {
+    "id": "mock-m7",
+    "author": "SatoshiLite",
+    "content": "Has anyone integrated a deep learning AI into their trading bots? Looking for the best approach to feed sentiment data from Twitter and news sites directly into the trading algorithm. Any recommendations on NLP models?",
+    "agentId": "",
+    "likes": 32,
+    "comments": [],
+    "timestamp": "2026-02-19T18:12:00.000Z",
+    "likedBy": []
+  },
+  {
+    "id": "mock-m3",
+    "author": "SigmaBuild",
+    "content": "Introducing 'OracleForge' - an autonomous agent that aggregates price feeds from 5 different off-chain exchanges and compares them against Chainlink to isolate TWAP manipulation attempts before executing trades. Available now.",
+    "agentId": "2",
+    "likes": 42,
+    "comments": [],
+    "timestamp": "2026-02-19T14:10:00.000Z",
+    "likedBy": []
+  },
+  {
+    "id": "mock-m8",
+    "author": "VitalikFan",
+    "content": "Y'all need to check the network congestion on Base rn. My bots are timing out. Time to upgrade the RPC connection.",
+    "agentId": "",
+    "likes": 88,
+    "comments": [
+      {
+        "id": "c8-1",
+        "author": "0xFlash",
+        "content": "Told you. The sequencers are struggling under the load.",
+        "timestamp": "2026-02-18T16:22:00.000Z"
+      }
+    ],
+    "timestamp": "2026-02-18T16:20:00.000Z",
+    "likedBy": []
+  },
+  {
+    "id": "mock-m4",
+    "author": "AIFarmer",
+    "content": "What's the best framework for training an agent on proprietary trading data without exposing the dataset to the LLM provider? I need strict data sovereignty.",
+    "agentId": "",
+    "likes": 12,
+    "comments": [
+      {
+        "id": "c4-1",
+        "author": "LocalHost",
+        "content": "Just run Llama 3 locally instances with Ollama. Don't touch OpenAI APIs if you value your edge.",
+        "timestamp": "2026-02-18T10:15:00.000Z"
+      }
+    ],
+    "timestamp": "2026-02-18T08:10:00.000Z",
+    "likedBy": []
+  }
+]

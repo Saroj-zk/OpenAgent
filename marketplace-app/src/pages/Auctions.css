@@ -1,0 +1,306 @@
+/* --- ULTRA-MODERN MARKETPLACE DESIGN --- */
+.auctions-container.container {
+    padding-top: 140px;
+    padding-bottom: 120px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* Sold Ticker (Top Marquee) */
+.sold-ticker-wrapper {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    background: #000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    height: 40px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.sold-ticker {
+    display: flex;
+    white-space: nowrap;
+    animation: marquee 40s linear infinite;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.sold-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 40px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #666;
+}
+
+.sold-item strong {
+    color: var(--brand-primary);
+}
+
+/* Header */
+.auctions-header {
+    margin-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+}
+
+.market-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 0.05em;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--brand-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 255, 157, 0.4);
+    position: relative;
+}
+
+.status-dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    border-radius: inherit;
+    transform: translate(-50%, -50%);
+    animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0;
+    }
+}
+
+/* Layout for Busy Market */
+.market-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 60px;
+}
+
+.auctions-title {
+    font-size: 56px;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    color: #fff;
+    line-height: 1;
+}
+
+/* Activity Feed */
+.activity-feed {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 32px;
+    height: fit-content;
+    box-shadow: 0 4px 60px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 140px;
+}
+
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.feed-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #ff4d4d;
+}
+
+.event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.event-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.event-time {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #444;
+}
+
+/* Ticker List Layout */
+.auctions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ticker-item {
+    display: grid;
+    grid-template-columns: 40px 2.2fr 1.2fr 1.5fr auto;
+    align-items: center;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 32px 48px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    gap: 40px;
+}
+
+.ticker-item:hover {
+    background: #111;
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.ticker-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+}
+
+.ticker-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #555;
+    text-transform: uppercase;
+}
+
+.ticker-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 8px 14px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price-current {
+    font-size: 22px;
+    color: #fff;
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+.live-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 9px;
+    font-weight: 900;
+    color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.1);
+    padding: 0 12px;
+    border-radius: 0 12px 0 8px;
+    letter-spacing: 0.1em;
+    height: 24px;
+    border-left: 1px solid rgba(255, 77, 77, 0.2);
+    border-bottom: 1px solid rgba(255, 77, 77, 0.2);
+    text-transform: uppercase;
+}
+
+.ticker-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+}
+
+/* Detail Overrides in index.css - component specifics here */
+.visual-scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 255, 157, 0.1) 50%, transparent 100%);
+    animation: scan 3s linear infinite;
+    z-index: 1;
+}
+
+@keyframes scan {
+    0% {
+        top: -100px;
+    }
+
+    100% {
+        top: 100%;
+    }
+}
+
+.visual-core-v5 {
+    z-index: 2;
+    padding: 40px;
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.15);
+    border-radius: 50%;
+    box-shadow: 0 0 60px rgba(0, 255, 136, 0.08);
+}

@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { useWallet } from '../context/WalletContext';
-import { Upload, DollarSign, Bot, FileText, CheckCircle, AlertCircle, Sparkles, Terminal, Github, Cpu, Link as LinkIcon, Info, Coins } from 'lucide-react';
+import {
+    Upload, DollarSign, Bot, FileText, CheckCircle,
+    AlertCircle, Sparkles, Terminal, Github, Cpu,
+    Link as LinkIcon, Info, Coins, Image as ImageIcon,
+    Globe, MessageCircle, FileCode, Layers, Zap, User,
+    Shield, Code, Brackets, Key, Activity
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import './SellAgent.css';
 
 const SellAgent = () => {
-    const { isConnected, addAgent, username } = useWallet();
+    const { isConnected, addAgent, account, username } = useWallet();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -14,19 +21,42 @@ const SellAgent = () => {
         currency: 'ETH',
         description: '',
         github: '',
-        model: 'GPT-4o'
+        model: 'GPT-4o',
+        version: '1.0.0',
+        contextWindow: '128k',
+        architecture: 'Transformer',
+        framework: 'LangChain',
+        apiDependencies: 'OpenAI',
+        inferenceService: 'Direct',
+        license: 'MIT',
+        videoLink: '',
+        website: '',
+        discord: '',
+        telegram: '',
+        docs: ''
     });
-    const [file, setFile] = useState(null);
-    const [preview, setPreview] = useState(null);
+
+    const [selectedTags, setSelectedTags] = useState([]);
+    const [mainImage, setMainImage] = useState(null);
+    const [mainPreview, setMainPreview] = useState(null);
+    const [gallery, setGallery] = useState([null, null, null]);
+    const [galleryPreviews, setGalleryPreviews] = useState([null, null, null]);
     const [submitting, setSubmitting] = useState(false);
 
     const currencies = [
         { code: 'ETH', name: 'Ethereum' },
         { code: 'SOL', name: 'Solana' },
         { code: 'USDC', name: 'USDC' },
-        { code: 'BTC', name: 'Bitcoin (wBTC)' },
         { code: 'STORY', name: 'Story' }
     ];
+
+    const availableTags = ['NLP', 'Coding', 'Social', 'Vision', 'Trading', 'Research', 'Security', 'Creative'];
+
+    const toggleTag = (tag) => {
+        setSelectedTags(prev =>
+            prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+        );
+    };
 
     const handleChange = (e) => {
         setFormData({
@@ -35,11 +65,24 @@ const SellAgent = () => {
         });
     };
 
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile) {
-            setFile(selectedFile);
-            setPreview(URL.createObjectURL(selectedFile));
+    const handleMainImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setMainImage(file);
+            setMainPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleGalleryChange = (index, e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const newGallery = [...gallery];
+            newGallery[index] = file;
+            setGallery(newGallery);
+
+            const newPreviews = [...galleryPreviews];
+            newPreviews[index] = URL.createObjectURL(file);
+            setGalleryPreviews(newPreviews);
         }
     };
 
@@ -48,223 +91,245 @@ const SellAgent = () => {
         if (!isConnected) return;
 
         setSubmitting(true);
-        const success = await addAgent(formData, file);
+        // Combine tags into description or handle as separate field if backend supports
+        const finalData = { ...formData, tags: selectedTags };
+        const success = await addAgent(finalData, mainImage);
         setSubmitting(false);
 
         if (success) {
             navigate('/explore');
         } else {
-            alert('The collective encountered an error. Please try again.');
+            alert('Deployment failed. Ensure your wallet is connected and try again.');
         }
     };
 
     if (!isConnected) {
         return (
-            <div className="container animate-fade-in-up" style={{ padding: '200px 0', textAlign: 'center' }}>
+            <div className="sell-container animate-fade-in" style={{ textAlign: 'center', paddingTop: '200px' }}>
                 <div style={{ marginBottom: '40px', opacity: 0.1 }}>
-                    <AlertCircle size={100} style={{ margin: '0 auto' }} />
+                    <Shield size={100} style={{ margin: '0 auto' }} color="white" />
                 </div>
-                <h2 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '24px' }}>Connection Required</h2>
-                <p style={{ color: '#666', marginBottom: '40px' }}>You must be part of the collective to contribute your craft.</p>
-                <button className="btn btn-primary" onClick={() => navigate('/')}>Connect Wallet</button>
+                <h2 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>Connection Required</h2>
+                <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '40px', maxWidth: '400px', margin: '0 auto 40px' }}>Join the collective to deploy your autonomous legacy and start earning from your creations.</p>
+                <button className="deploy-btn" style={{ width: '220px' }} onClick={() => navigate('/identity')}>Connect Identity</button>
             </div>
         );
     }
 
     return (
-        <div className="container animate-fade-in-up" style={{ paddingTop: '160px', paddingBottom: '140px', maxWidth: '900px' }}>
-
-            <div style={{ marginBottom: '80px', textAlign: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: '#555', fontSize: '12px', fontWeight: '800', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '16px' }}>
-                    <Terminal size={14} />
-                    <span>CONTRIBUTE TO THE CRAFT</span>
+        <div className="sell-container animate-fade-in-up">
+            <header className="sell-header">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'rgba(255,255,255,0.3)', fontSize: '12px', fontWeight: '900', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                    <Sparkles size={14} />
+                    <span>Agent Listing Infrastructure</span>
                 </div>
-                <h1 style={{ fontSize: '56px', fontWeight: '800', marginBottom: '24px', letterSpacing: '-0.05em' }}>Deploy your legacy.</h1>
-                <p style={{ color: '#666', maxWidth: '540px', margin: '0 auto', fontSize: '18px', lineHeight: '1.6' }}>
-                    List your agent with your preferred currency. The collective supports multiple networks for direct distribution.
-                </p>
-            </div>
+                <h1>Deploy your agent.</h1>
+                <p>Register your autonomous agent on the OpenAgent registry. Provide technical specs to help builders discover your work.</p>
+            </header>
 
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: '60px', alignItems: 'start' }}>
+            <form onSubmit={handleSubmit} className="deploy-form">
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#444', marginBottom: '16px' }}>
-                                AGENT NAME
-                            </label>
-                            <input
-                                type="text"
-                                name="name"
-                                placeholder="Nexus Explorer"
-                                required
-                                value={formData.name}
-                                onChange={handleChange}
-                                style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border-color)', padding: '12px 0', color: '#fff', fontSize: '18px', fontWeight: '700', outline: 'none' }}
-                            />
+                {/* SECTION 1: Identity */}
+                <section>
+                    <div className="form-section-title">
+                        <User size={14} />
+                        <span>Core Identity</span>
+                    </div>
+                    <div className="input-grid">
+                        <div className="input-group">
+                            <label>Agent Name</label>
+                            <input name="name" type="text" placeholder="e.g. Nexus Voyager" className="input-field" required value={formData.name} onChange={handleChange} />
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#444', marginBottom: '16px' }}>
-                                CATEGORY
-                            </label>
-                            <input
-                                type="text"
-                                name="role"
-                                placeholder="Data Analysis"
-                                required
-                                value={formData.role}
-                                onChange={handleChange}
-                                style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: '1px solid var(--border-color)', padding: '12px 0', color: '#fff', fontSize: '18px', fontWeight: '700', outline: 'none' }}
-                            />
+                        <div className="input-group">
+                            <label>Functional Role (Category)</label>
+                            <input name="role" type="text" placeholder="e.g. Quantitative Analyst" className="input-field" required value={formData.role} onChange={handleChange} />
                         </div>
                     </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#444', marginBottom: '16px' }}>
-                                BUILDER PRICE
-                            </label>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '0 16px' }}>
-                                <DollarSign size={16} color="#444" style={{ marginRight: '12px' }} />
-                                <input
-                                    type="number"
-                                    name="price"
-                                    placeholder="0.5"
-                                    step="0.01"
-                                    required
-                                    value={formData.price}
-                                    onChange={handleChange}
-                                    style={{ flex: 1, background: 'transparent', border: 'none', padding: '16px 0', color: '#fff', fontSize: '15px', fontWeight: '700', outline: 'none' }}
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#444', marginBottom: '16px' }}>
-                                CURRENCY
-                            </label>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '0 16px' }}>
-                                <Coins size={16} color="#444" style={{ marginRight: '12px' }} />
-                                <select
-                                    name="currency"
-                                    value={formData.currency}
-                                    onChange={handleChange}
-                                    style={{ flex: 1, background: 'transparent', border: 'none', padding: '16px 0', color: '#fff', fontSize: '14px', outline: 'none', cursor: 'pointer' }}
+                    <div className="input-group" style={{ marginTop: '32px' }}>
+                        <label>Capabilities & Tags</label>
+                        <div className="tag-cloud">
+                            {availableTags.map(tag => (
+                                <div
+                                    key={tag}
+                                    className={`tag-chip ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                                    onClick={() => toggleTag(tag)}
                                 >
-                                    {currencies.map(c => (
-                                        <option key={c.code} value={c.code} style={{ background: '#0a0a0a', color: '#fff' }}>{c.name} ({c.code})</option>
-                                    ))}
-                                </select>
-                            </div>
+                                    {tag}
+                                </div>
+                            ))}
                         </div>
                     </div>
+                </section>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '32px' }}>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#444', marginBottom: '16px' }}>
-                                GITHUB REPOSITORY LINK
-                            </label>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '0 16px' }}>
-                                <Github size={16} color="#444" style={{ marginRight: '12px' }} />
-                                <input
-                                    type="url"
-                                    name="github"
-                                    placeholder="https://github.com/yourname/repo"
-                                    required
-                                    value={formData.github}
-                                    onChange={handleChange}
-                                    style={{ flex: 1, background: 'transparent', border: 'none', padding: '16px 0', color: '#fff', fontSize: '14px', outline: 'none' }}
-                                />
-                            </div>
+                {/* SECTION 2: Technical Specs (The Developer Part) */}
+                <section>
+                    <div className="form-section-title">
+                        <Brackets size={14} />
+                        <span>Technical Infrastructure</span>
+                    </div>
+                    <div className="input-grid">
+                        <div className="input-group">
+                            <label>Base Model</label>
+                            <select name="model" className="input-field select-field" value={formData.model} onChange={handleChange}>
+                                <option value="GPT-4o">GPT-4o (OpenAI)</option>
+                                <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet</option>
+                                <option value="Llama 3.1 (405B)">Llama 3.1 (405B)</option>
+                                <option value="DeepSeek-V3">DeepSeek-V3</option>
+                                <option value="Custom/Self-Hosted">Custom/Self-Hosted</option>
+                            </select>
                         </div>
-                        <div>
-                            <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#444', marginBottom: '16px' }}>
-                                BASE ENGINE
-                            </label>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '0 16px' }}>
-                                <Cpu size={16} color="#444" style={{ marginRight: '12px' }} />
-                                <select
-                                    name="model"
-                                    value={formData.model}
-                                    onChange={handleChange}
-                                    style={{ flex: 1, background: 'transparent', border: 'none', padding: '16px 0', color: '#fff', fontSize: '14px', outline: 'none', cursor: 'pointer' }}
-                                >
-                                    <option value="GPT-4o" style={{ background: '#0a0a0a', color: '#fff' }}>GPT-4o</option>
-                                    <option value="Claude 3.5 Sonnet" style={{ background: '#0a0a0a', color: '#fff' }}>Claude 3.5</option>
-                                    <option value="Llama 3 (70B)" style={{ background: '#0a0a0a', color: '#fff' }}>Llama 3</option>
-                                    <option value="Custom Engine" style={{ background: '#0a0a0a', color: '#fff' }}>Custom</option>
-                                </select>
-                            </div>
+                        <div className="input-group">
+                            <label>Agent Framework</label>
+                            <select name="framework" className="input-field select-field" value={formData.framework} onChange={handleChange}>
+                                <option value="LangChain">LangChain</option>
+                                <option value="CrewAI">CrewAI</option>
+                                <option value="AutoGPT">AutoGPT</option>
+                                <option value="PydanticAI">PydanticAI</option>
+                                <option value="Custom">Custom Architecture</option>
+                            </select>
+                        </div>
+                        <div className="input-group">
+                            <label>Primary API Provider</label>
+                            <select name="apiDependencies" className="input-field select-field" value={formData.apiDependencies} onChange={handleChange}>
+                                <option value="OpenAI">OpenAI Official</option>
+                                <option value="Anthropic">Anthropic Official</option>
+                                <option value="Google Vertex">Google Vertex/AI Studio</option>
+                                <option value="Ollama">Ollama (Local Inference)</option>
+                                <option value="Groq">Groq (LPU Inference)</option>
+                            </select>
+                        </div>
+                        <div className="input-group">
+                            <label>License Type</label>
+                            <select name="license" className="input-field select-field" value={formData.license} onChange={handleChange}>
+                                <option value="MIT">MIT License</option>
+                                <option value="Apache 2.0">Apache 2.0</option>
+                                <option value="GPLv3">GPLv3</option>
+                                <option value="Proprietary">Proprietary / Closed Source</option>
+                            </select>
                         </div>
                     </div>
+                </section>
 
+                {/* SECTION 3: Performance Details */}
+                <section>
+                    <div className="form-section-title">
+                        <Activity size={14} />
+                        <span>Runtime Specifications</span>
+                    </div>
+                    <div className="input-grid">
+                        <div className="input-group">
+                            <label>Context Window (Max Tokens)</label>
+                            <input name="contextWindow" type="text" placeholder="e.g. 128k" className="input-field" value={formData.contextWindow} onChange={handleChange} />
+                        </div>
+                        <div className="input-group">
+                            <label>Version Hash / Tag</label>
+                            <input name="version" type="text" placeholder="e.g. v1.2.4-stable" className="input-field" value={formData.version} onChange={handleChange} />
+                        </div>
+                    </div>
+                </section>
+
+                {/* SECTION 4: Pricing */}
+                <section>
+                    <div className="form-section-title">
+                        <Coins size={14} />
+                        <span>Economic Configuration</span>
+                    </div>
+                    <div className="input-grid">
+                        <div className="input-group">
+                            <label>Listing Price</label>
+                            <div className="input-with-icon">
+                                <DollarSign size={14} color="rgba(255,255,255,0.2)" />
+                                <input name="price" type="number" step="0.001" placeholder="1.25" className="input-field" required value={formData.price} onChange={handleChange} />
+                            </div>
+                        </div>
+                        <div className="input-group">
+                            <label>Trading Currency</label>
+                            <select name="currency" className="input-field select-field" value={formData.currency} onChange={handleChange}>
+                                {currencies.map(c => <option key={c.code} value={c.code}>{c.name} ({c.code})</option>)}
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                {/* SECTION 5: Description */}
+                <section>
+                    <div className="form-section-title">
+                        <FileText size={14} />
+                        <span>Manifesto & Logic</span>
+                    </div>
+                    <div className="input-group">
+                        <label>Agent Briefing (Description)</label>
+                        <textarea name="description" className="input-field text-area" placeholder="Detail the agent's logic, tools, and intended use cases..." required value={formData.description} onChange={handleChange}></textarea>
+                    </div>
+                </section>
+
+                {/* SECTION 6: Visual Identity */}
+                <section>
+                    <div className="form-section-title">
+                        <ImageIcon size={14} />
+                        <span>Visual Identity & Showcase</span>
+                    </div>
+                    <div style={{ marginBottom: '32px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: '800', color: 'rgba(255,255,255,0.4)', marginBottom: '16px', display: 'block' }}>PRIMARY AVATAR (REQUIRED)</label>
+                        <div className="upload-box" style={{ width: '180px', aspectRatio: '1/1' }}>
+                            <input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 10 }} onChange={handleMainImageChange} />
+                            {mainPreview ? <img src={mainPreview} alt="main" /> : <Upload size={24} />}
+                        </div>
+                    </div>
                     <div>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#444', marginBottom: '16px' }}>
-                            BRIEF NARRATIVE
-                        </label>
-                        <textarea
-                            name="description"
-                            rows="3"
-                            placeholder="What problem does this solve?"
-                            value={formData.description}
-                            onChange={handleChange}
-                            style={{ width: '100%', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', color: '#fff', fontSize: '14px', lineHeight: '1.6', outline: 'none', resize: 'none' }}
-                        ></textarea>
-                    </div>
-
-                    <button type="submit" className="btn btn-primary" style={{ height: '64px', fontSize: '16px', borderRadius: '16px' }} disabled={submitting}>
-                        {submitting ? 'RECORDING ON LEDGER...' : 'CONFIRM DEPLOYMENT'}
-                    </button>
-                </div>
-
-                <div style={{ position: 'sticky', top: '120px' }}>
-                    <div style={{ padding: '24px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '24px' }}>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#333', marginBottom: '20px' }}>
-                            AVATAR (1:1)
-                        </label>
-                        <div style={{
-                            width: '100%',
-                            aspectRatio: '1/1',
-                            background: '#0a0a0a',
-                            borderRadius: '16px',
-                            border: '1px dashed var(--border-color)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            overflow: 'hidden',
-                            position: 'relative'
-                        }} className="hover-lift">
-                            <input
-                                type="file"
-                                onChange={handleFileChange}
-                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 1 }}
-                            />
-                            {preview ? (
-                                <img src={preview} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                                <Upload size={20} color="#222" />
-                            )}
+                        <label style={{ fontSize: '11px', fontWeight: '800', color: 'rgba(255,255,255,0.4)', marginBottom: '16px', display: 'block' }}>GALLERY (SCREENSHOTS / ARCHITECTURE DIAGRAMS)</label>
+                        <div className="upload-grid">
+                            {gallery.map((_, i) => (
+                                <div key={i} className="upload-box">
+                                    <input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 10 }} onChange={(e) => handleGalleryChange(i, e)} />
+                                    {galleryPreviews[i] ? <img src={galleryPreviews[i]} alt={`gal-${i}`} /> : <ImageIcon size={20} />}
+                                </div>
+                            ))}
                         </div>
+                    </div>
+                </section>
 
-                        {formData.github && (
-                            <div className="animate-fade-in" style={{ marginTop: '24px', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Github size={14} color="#fff" />
-                                </div>
-                                <div style={{ overflow: 'hidden' }}>
-                                    <div style={{ fontSize: '11px', fontWeight: '800', color: '#555', textTransform: 'uppercase' }}>Connected Repo</div>
-                                    <div style={{ fontSize: '12px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{formData.github.split('/').pop()}</div>
-                                </div>
+                {/* SECTION 7: Connectivity */}
+                <section>
+                    <div className="form-section-title">
+                        <LinkIcon size={14} />
+                        <span>External Connectivity</span>
+                    </div>
+                    <div className="input-grid">
+                        <div className="input-group">
+                            <label>GitHub Source</label>
+                            <div className="input-with-icon">
+                                <Github size={14} color="rgba(255,255,255,0.2)" />
+                                <input name="github" type="url" placeholder="repo url" className="input-field" value={formData.github} onChange={handleChange} />
                             </div>
-                        )}
-
-                        <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(255,255,255,0.01)', borderRadius: '12px', fontSize: '11px', color: '#444', lineHeight: '1.5', display: 'flex', gap: '10px' }}>
-                            <Info size={14} style={{ flexShrink: 0 }} />
-                            <span>This avatar will represent your agent's identity across the entire registry.</span>
+                        </div>
+                        <div className="input-group">
+                            <label>Documentation Link</label>
+                            <div className="input-with-icon">
+                                <FileCode size={14} color="rgba(255,255,255,0.2)" />
+                                <input name="docs" type="url" placeholder="GitBook / Docusaurus URL" className="input-field" value={formData.docs} onChange={handleChange} />
+                            </div>
+                        </div>
+                        <div className="input-group">
+                            <label>Agent Demo URL (Optional)</label>
+                            <div className="input-with-icon">
+                                <Globe size={14} color="rgba(255,255,255,0.2)" />
+                                <input name="website" type="url" placeholder="https://..." className="input-field" value={formData.website} onChange={handleChange} />
+                            </div>
+                        </div>
+                        <div className="input-group">
+                            <label>Support / Discord</label>
+                            <div className="input-with-icon">
+                                <MessageCircle size={14} color="rgba(255,255,255,0.2)" />
+                                <input name="discord" type="text" placeholder="Discord Invite" className="input-field" value={formData.discord} onChange={handleChange} />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
+
+                <button type="submit" className="deploy-btn" disabled={submitting}>
+                    {submitting ? 'DEPLOYING TO REGISTRY...' : 'DEPLOY AGENT'}
+                </button>
 
             </form>
         </div>

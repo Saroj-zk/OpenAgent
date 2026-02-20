@@ -18,6 +18,25 @@ export const REGISTRY_ABI = [
                 "internalType": "address",
                 "name": "seller",
                 "type": "address"
+            }
+        ],
+        "name": "AgentDelisted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "seller",
+                "type": "address"
             },
             {
                 "indexed": false,
@@ -27,7 +46,7 @@ export const REGISTRY_ABI = [
             }
         ],
         "name": "AgentListed",
-        "name": "AgentListed"
+        "type": "event"
     },
     {
         "anonymous": false,
@@ -52,7 +71,7 @@ export const REGISTRY_ABI = [
             }
         ],
         "name": "AgentSold",
-        "name": "AgentSold"
+        "type": "event"
     },
     {
         "anonymous": false,
@@ -64,7 +83,7 @@ export const REGISTRY_ABI = [
                 "type": "uint256"
             },
             {
-                "indexed": false,
+                "indexed": true,
                 "internalType": "address",
                 "name": "winner",
                 "type": "address"
@@ -77,7 +96,7 @@ export const REGISTRY_ABI = [
             }
         ],
         "name": "AuctionSettled",
-        "name": "AuctionSettled"
+        "type": "event"
     },
     {
         "anonymous": false,
@@ -108,7 +127,7 @@ export const REGISTRY_ABI = [
             }
         ],
         "name": "AuctionStarted",
-        "name": "AuctionStarted"
+        "type": "event"
     },
     {
         "anonymous": false,
@@ -133,7 +152,7 @@ export const REGISTRY_ABI = [
             }
         ],
         "name": "BidPlaced",
-        "name": "BidPlaced"
+        "type": "event"
     },
     {
         "anonymous": false,
@@ -152,7 +171,7 @@ export const REGISTRY_ABI = [
             }
         ],
         "name": "IdentityClaimed",
-        "name": "IdentityClaimed"
+        "type": "event"
     },
     {
         "inputs": [
@@ -225,6 +244,19 @@ export const REGISTRY_ABI = [
             }
         ],
         "name": "claimIdentity",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            }
+        ],
+        "name": "delistAgent",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

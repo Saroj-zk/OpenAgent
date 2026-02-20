@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "Genesis Architect",
-        "role": "Self-evolving neural architecture",
+        "role": "Smart Design & Logic Expert",
         "highestBid": 14.5,
         "currency": "ETH",
         "timeLeft": "02:14:59",
@@ -14,7 +14,7 @@
     {
         "id": 2,
         "name": "The Cryptographer",
-        "role": "ZKP security & validation agent",
+        "role": "Private Security & Data Specialist",
         "highestBid": 2100,
         "currency": "SOL",
         "timeLeft": "05:02:10",
@@ -26,7 +26,7 @@
     {
         "id": 3,
         "name": "Market Oracle",
-        "role": "Predictive sentiment analysis",
+        "role": "Smart Analytics & Prediction",
         "highestBid": 450.25,
         "currency": "STORY",
         "timeLeft": "00:42:15",
@@ -38,7 +38,7 @@
     {
         "id": 4,
         "name": "Protocol Sentinel",
-        "role": "Real-time threat detection",
+        "role": "Active Safety & Threat Monitor",
         "highestBid": 5200,
         "currency": "USDC",
         "timeLeft": "12:00:00",

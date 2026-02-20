@@ -1,0 +1,51 @@
+/* AgentDetails specific styles - Shared styles moved to index.css */
+
+.agent-title-v5 {
+    /* Inherits from index.css, adding specific shadow if needed */
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.rec-visual-v5 {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rec-info-v5 {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rec-name-v5 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.01em;
+}
+
+.rec-price-v5 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brand-primary);
+    font-family: var(--font-mono);
+}
+
+.rec-arrow-v5 {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    color: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.rec-card-v5:hover .rec-arrow-v5 {
+    color: #fff;
+    transform: translate(2px, -2px);
+}
