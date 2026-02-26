@@ -1,0 +1,9 @@
+node_modules/
+.env
+artifacts/
+cache/
+*.log
+.DS_Store
+marketplace-app/node_modules/
+marketplace-app/dist/
+marketplace-app/build/

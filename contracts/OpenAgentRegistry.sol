@@ -14,9 +14,9 @@ contract OpenAgentRegistry {
         bool exists;
     }
     
-    struct Listing {
+    struct Agent {
         uint256 id;
-        address payable seller;
+        address payable creator;
         uint256 price;
         bool active;
     }
@@ -34,16 +34,21 @@ contract OpenAgentRegistry {
     mapping(address => Identity) public identities;
     mapping(string => address) public usernameToAddress;
     
-    mapping(uint256 => Listing) public listings;
+    mapping(uint256 => Agent) public agents;
+    // Verifies if a user has purchased access to a specific agent: agentId => userAddress => bool
+    mapping(uint256 => mapping(address => bool)) public hasAccess;
+
     mapping(uint256 => Auction) public auctions;
     
-    uint256 private nextListingId = 1;
-    uint256 private nextAuctionId = 1;
+    uint256 public nextAgentId = 1;
+    uint256 public nextAuctionId = 1;
     
     event IdentityClaimed(address indexed user, string username);
-    event AgentListed(uint256 indexed id, address indexed seller, uint256 price);
-    event AgentSold(uint256 indexed id, address indexed buyer, uint256 price);
-    event AgentDelisted(uint256 indexed id, address indexed seller);
+    event AgentListed(uint256 indexed id, address indexed creator, uint256 price);
+    event AgentBought(uint256 indexed id, address indexed buyer, uint256 price);
+    event AgentDelisted(uint256 indexed id, address indexed creator);
+    event AgentPriceUpdated(uint256 indexed id, uint256 newPrice);
+    
     event AuctionStarted(uint256 indexed id, address indexed seller, uint256 startTime, uint256 endTime);
     event BidPlaced(uint256 indexed id, address indexed bidder, uint256 amount);
     event AuctionSettled(uint256 indexed id, address indexed winner, uint256 amount);
@@ -69,43 +74,64 @@ contract OpenAgentRegistry {
         emit IdentityClaimed(msg.sender, _username);
     }
 
-    // --- Marketplace ---
+    // --- Marketplace (Licenses) ---
 
+    // Creators list an agent software package to be sold multiple times
     function listAgent(uint256 _price) external returns (uint256) {
-        uint256 id = nextListingId++;
-        listings[id] = Listing(id, payable(msg.sender), _price, true);
+        uint256 id = nextAgentId++;
+        agents[id] = Agent(id, payable(msg.sender), _price, true);
         
+        // Creator gets access automatically
+        hasAccess[id][msg.sender] = true;
+
         emit AgentListed(id, msg.sender, _price);
         return id;
     }
 
+    // Users buy access (a license) to the agent
     function buyAgent(uint256 _id) external payable {
-        Listing storage listing = listings[_id];
-        require(listing.active, "Listing not active");
-        require(msg.value >= listing.price, "Insufficient funds");
+        Agent storage agent = agents[_id];
+        require(agent.active, "Agent not active for sale");
+        require(msg.value >= agent.price, "Insufficient funds");
+        require(!hasAccess[_id][msg.sender], "You already own access");
 
-        listing.active = false;
+        hasAccess[_id][msg.sender] = true;
         
         uint256 fee = (msg.value * platformFee) / 1000;
-        uint256 sellerProceeds = msg.value - fee;
+        uint256 creatorProceeds = msg.value - fee;
         
         payable(owner).transfer(fee);
-        listing.seller.transfer(sellerProceeds);
+        agent.creator.transfer(creatorProceeds);
 
-        emit AgentSold(_id, msg.sender, msg.value);
+        emit AgentBought(_id, msg.sender, agent.price);
     }
 
     function delistAgent(uint256 _id) external {
-        Listing storage listing = listings[_id];
-        require(listing.active, "Listing not active");
-        require(msg.sender == listing.seller, "Only seller can delist");
+        Agent storage agent = agents[_id];
+        require(agent.active, "Agent not active");
+        require(msg.sender == agent.creator, "Only creator can delist");
 
-        listing.active = false;
+        agent.active = false;
         
         emit AgentDelisted(_id, msg.sender);
     }
+    
+    function updateAgentPrice(uint256 _id, uint256 _newPrice) external {
+        Agent storage agent = agents[_id];
+        require(agent.active, "Agent not active");
+        require(msg.sender == agent.creator, "Only creator can update price");
+        
+        agent.price = _newPrice;
+        
+        emit AgentPriceUpdated(_id, _newPrice);
+    }
 
-    // --- Auctions ---
+    // --- Access Verification (Web 2.5) ---
+    function checkAccess(uint256 _id, address _user) external view returns (bool) {
+        return hasAccess[_id][_user];
+    }
+
+    // --- Auctions (1-of-1) ---
 
     function startAuction(uint256 _duration) external returns (uint256) {
         uint256 id = nextAuctionId++;

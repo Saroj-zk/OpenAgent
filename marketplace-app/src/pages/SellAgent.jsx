@@ -41,6 +41,7 @@ const SellAgent = () => {
     const [mainPreview, setMainPreview] = useState(null);
     const [gallery, setGallery] = useState([null, null, null]);
     const [galleryPreviews, setGalleryPreviews] = useState([null, null, null]);
+    const [agentCode, setAgentCode] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
     const currencies = [
@@ -86,6 +87,13 @@ const SellAgent = () => {
         }
     };
 
+    const handleCodeChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setAgentCode(file);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isConnected) return;
@@ -93,7 +101,7 @@ const SellAgent = () => {
         setSubmitting(true);
         // Combine tags into description or handle as separate field if backend supports
         const finalData = { ...formData, tags: selectedTags };
-        const success = await addAgent(finalData, mainImage);
+        const success = await addAgent(finalData, mainImage, agentCode);
         setSubmitting(false);
 
         if (success) {
@@ -260,6 +268,31 @@ const SellAgent = () => {
                     <div className="input-group">
                         <label>Agent Briefing (Description)</label>
                         <textarea name="description" className="input-field text-area" placeholder="Detail the agent's logic, tools, and intended use cases..." required value={formData.description} onChange={handleChange}></textarea>
+                    </div>
+                </section>
+
+                {/* SECTION: Source Code */}
+                <section>
+                    <div className="form-section-title">
+                        <Code size={14} />
+                        <span>Source Code (Product)</span>
+                    </div>
+                    <div>
+                        <label style={{ fontSize: '11px', fontWeight: '800', color: 'rgba(255,255,255,0.4)', marginBottom: '16px', display: 'block' }}>AGENT CODE (ZIP, TAR)</label>
+                        <div className="upload-box" style={{ width: '100%', padding: '32px', textAlign: 'center' }}>
+                            <input type="file" accept=".zip,.rar,.tar,.tar.gz" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 10 }} onChange={handleCodeChange} />
+                            {agentCode ? (
+                                <div style={{ color: '#4dff88', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <CheckCircle size={24} />
+                                    <span>{agentCode.name}</span>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.4)' }}>
+                                    <Upload size={24} />
+                                    <span>Upload .zip or .tar</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </section>
 
