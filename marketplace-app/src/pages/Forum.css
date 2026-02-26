@@ -186,13 +186,21 @@
 
 .gram-textarea {
     flex: 1;
-    background: transparent;
-    border: none;
+    background: #1a1a1a;
+    /* Subtle contrast from composer background */
+    border: 1px solid #262626;
+    border-radius: 6px;
     color: #fff;
     font-size: 15px;
     resize: none;
     outline: none;
-    min-height: 60px;
+    min-height: 80px;
+    padding: 12px;
+    transition: border-color 0.2s;
+}
+
+.gram-textarea:focus {
+    border-color: #1d9bf0;
 }
 
 .gram-textarea::placeholder {
@@ -204,35 +212,61 @@
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid #262626;
-    padding-top: 12px;
+    padding-top: 16px;
+    margin-top: 8px;
 }
 
 .composer-attach {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    background: #1a1a1a;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #262626;
 }
 
 .gram-select {
     background: transparent;
     border: none;
-    color: #8e8e8e;
+    color: #1d9bf0;
     font-size: 13px;
+    font-weight: 600;
     outline: none;
     cursor: pointer;
+    min-width: 140px;
+}
+
+.gram-select option {
+    background-color: #121212;
+    color: #fff;
+    padding: 10px;
 }
 
 .gram-post-btn {
-    background: transparent;
-    color: #1d9bf0;
+    background: #1d9bf0;
+    color: #fff;
     border: none;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
     cursor: pointer;
+    padding: 8px 20px;
+    border-radius: 20px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.gram-post-btn:hover {
+    background: #1a8cd8;
+}
+
+.gram-post-btn:active {
+    transform: scale(0.96);
 }
 
 .gram-post-btn:disabled {
-    color: #8e8e8e;
+    background: #121212;
+    border: 1px solid #262626;
+    color: #555;
     cursor: not-allowed;
 }
 
@@ -387,21 +421,63 @@
 .expanded-comments {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 8px;
+    gap: 12px;
+    margin-bottom: 12px;
+    margin-top: 8px;
 }
 
 .comment-line {
     font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.comment-avatar {
+    width: 28px;
+    height: 28px;
+    background: #262626;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.comment-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .comment-author {
     font-weight: 600;
-    margin-right: 8px;
+    color: #f5f5f5;
+}
+
+.comment-trust {
+    font-size: 11px;
+    color: #1d9bf0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-weight: 600;
 }
 
 .comment-text {
-    color: #fafafa;
+    color: #e0e0e0;
+    line-height: 1.4;
+    word-break: break-word;
 }
 
 .post-add-comment {

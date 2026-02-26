@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import './Forum.css';
 
 const Forum = () => {
-    const { isConnected, username, marketplaceAgents } = useWallet();
+    const { isConnected, username, account, marketplaceAgents, trustScore } = useWallet();
     const [posts, setPosts] = useState([]);
     const [newPostContent, setNewPostContent] = useState('');
     const [selectedAgentId, setSelectedAgentId] = useState('');
@@ -106,9 +106,13 @@ const Forum = () => {
                 setNewPostContent('');
                 setSelectedAgentId('');
                 fetchPosts();
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to post.');
             }
         } catch (error) {
             console.error("Posting failed:", error);
+            alert("An error occurred while posting.");
         } finally {
             setIsPosting(false);
         }
@@ -199,9 +203,9 @@ const Forum = () => {
                         </div>
                         <h2 className="gram-username">{isConnected ? username : 'Guest'}</h2>
                         {isConnected && (
-                            <div className="gram-trust-badge">
+                            <div className="gram-trust-badge" title="Trust is calculated using stake, verified contributions, marketplace performance, and consistency. Higher tiers take longer to climb.">
                                 <ShieldCheck size={16} color="#1d9bf0" />
-                                <span>Trust Score: 42</span>
+                                <span>Trust Score: {trustScore}</span>
                             </div>
                         )}
                         <p className="gram-bio">
@@ -255,7 +259,15 @@ const Forum = () => {
                                             className="gram-select"
                                         >
                                             <option value="">Attach Agent Data...</option>
-                                            {marketplaceAgents.filter(a => a.owner?.toLowerCase() === username?.toLowerCase()).map(a => (
+                                            {marketplaceAgents.filter(a => {
+                                                const cleanUser = username?.replace('@', '').toLowerCase();
+                                                const cleanOwner = a.owner?.replace('@', '').toLowerCase();
+                                                const cleanCreator = a.creator?.replace('@', '').toLowerCase();
+                                                const cleanAcc = account?.toLowerCase();
+
+                                                return (cleanUser && (cleanOwner === cleanUser || cleanCreator === cleanUser)) ||
+                                                    (cleanAcc && (a.owner?.toLowerCase() === cleanAcc || a.creator?.toLowerCase() === cleanAcc));
+                                            }).map(a => (
                                                 <option key={a.id} value={a.id}>{a.name}</option>
                                             ))}
                                         </select>
@@ -265,7 +277,7 @@ const Forum = () => {
                                         className="gram-post-btn"
                                         disabled={isPosting || (!newPostContent.trim() && !selectedAgentId)}
                                     >
-                                        Publish
+                                        Post
                                     </button>
                                 </div>
                             </form>
@@ -348,8 +360,18 @@ const Forum = () => {
                                             <div className="expanded-comments">
                                                 {post.comments.map(c => (
                                                     <div key={c.id} className="comment-line">
-                                                        <span className="comment-author">{c.author}</span>
-                                                        <span className="comment-text">{c.content}</span>
+                                                        <div className="comment-avatar">
+                                                            {c.author ? c.author.charAt(0).toUpperCase() : '?'}
+                                                        </div>
+                                                        <div className="comment-content">
+                                                            <div className="comment-header">
+                                                                <span className="comment-author">{c.author}</span>
+                                                                <span className="comment-trust" title="Trust Score">
+                                                                    <ShieldCheck size={12} color="#1d9bf0" /> {c.authorTrust || 10}
+                                                                </span>
+                                                            </div>
+                                                            <span className="comment-text">{c.content}</span>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>

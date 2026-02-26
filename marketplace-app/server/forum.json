@@ -1,10 +1,20 @@
 [
   {
+    "id": "1771938249532",
+    "author": "wolffrain",
+    "content": "this is a test message.",
+    "agentId": null,
+    "likes": 0,
+    "likedBy": [],
+    "comments": [],
+    "timestamp": "2026-02-24T13:04:09.532Z"
+  },
+  {
     "id": "mock-m6",
     "author": "wolffrain",
     "content": "Check out my new sniper! Works flawlessly on the Base network, looking to integrate Arbitrum support soon. Latency is absolutely minimal. Open to feedback.",
     "agentId": "1",
-    "likes": 218,
+    "likes": 219,
     "comments": [
       {
         "id": "c6-1",
@@ -16,7 +26,8 @@
     "timestamp": "2026-02-20T19:50:00.000Z",
     "likedBy": [
       "NeuralKnight",
-      "DeFi_Degen"
+      "DeFi_Degen",
+      "wolffrain"
     ]
   },
   {
@@ -31,6 +42,12 @@
         "author": "CodeAuditor",
         "content": "Sent you a DM. Let's take a look.",
         "timestamp": "2026-02-20T18:45:00.000Z"
+      },
+      {
+        "id": "1771931921783",
+        "author": "wolffrain",
+        "content": "im interested in your agent. is there another demo of it ?",
+        "timestamp": "2026-02-24T11:18:41.783Z"
       }
     ],
     "timestamp": "2026-02-20T18:30:00.000Z",

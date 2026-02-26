@@ -12,6 +12,7 @@ export const WalletProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [username, setUsername] = useState(null);
     const [user, setUser] = useState(null);
+    const [trustScore, setTrustScore] = useState(10);
 
     // Marketplace Data
     const [marketplaceAgents, setMarketplaceAgents] = useState([]);
@@ -65,6 +66,7 @@ export const WalletProvider = ({ children }) => {
                 const data = await res.json();
                 if (data && data.username) {
                     setUsername(data.username);
+                    if (data.visible_trust !== undefined) setTrustScore(data.visible_trust);
                     return;
                 }
             }
@@ -356,6 +358,7 @@ export const WalletProvider = ({ children }) => {
             buyAgent,
             placeBid,
             loading,
+            trustScore,
             purchasedAgents,
             hasPurchasedFrom: (owner) => purchasedAgents.some(a => (a.owner || '').toLowerCase() === (owner || '').toLowerCase())
         }}>

@@ -1,0 +1,20 @@
+[
+  {
+    "userId": "wolffrain",
+    "type": "comment",
+    "outcome": 0.25,
+    "weightedPoints": 0.16262874945799766,
+    "sourceId": "BaseBuilder",
+    "agentId": null,
+    "createdAt": "2026-02-24T11:18:41.785Z"
+  },
+  {
+    "userId": "wolffrain",
+    "type": "post_forum",
+    "outcome": 0.5,
+    "weightedPoints": 0.5,
+    "sourceId": null,
+    "agentId": null,
+    "createdAt": "2026-02-24T13:04:09.531Z"
+  }
+]

@@ -51,9 +51,9 @@ const AgentCard = ({ agent }) => {
                         <span className="stat-label">UPTIME</span>
                         <span className="stat-data">{uptime}%</span>
                     </div>
-                    <div className="stat-unit">
+                    <div className="stat-unit" title="Trust is calculated using stake, verified contributions, marketplace performance, and consistency.">
                         <span className="stat-label">TRUST</span>
-                        <span className="stat-data">{supports}</span>
+                        <span className="stat-data">{agent.creatorTrust || 10}</span>
                     </div>
                 </div>
 

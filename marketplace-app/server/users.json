@@ -10,6 +10,16 @@
     "address": "0x9527c9fd391ccd48f7278fe7c7c09b786a0bb832",
     "authType": "web3",
     "username": "wolffrain",
-    "lastLogin": "2026-02-20T15:04:05.080Z"
+    "lastLogin": "2026-02-24T13:03:56.706Z",
+    "last_activity_at": "2026-02-24T13:04:09.531Z",
+    "hidden_rating": 10.079515449934961,
+    "daily_total_date": "2026-02-24",
+    "daily_weighted_total": 0.6626287494579977,
+    "daily_from_others": {
+      "BaseBuilder": 0.16262874945799766
+    },
+    "visible_trust": 125,
+    "daily_posts_date": "2026-02-24",
+    "daily_posts_count": 1
   }
 }
