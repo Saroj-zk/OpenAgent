@@ -1,15 +1,17 @@
+
 import React, { useMemo, useState } from 'react';
 import { useWallet } from '../context/WalletContext';
 import {
     Terminal, Package, ExternalLink, Shield,
-    User, Settings, Grid, Activity, Award,
-    Copy, CheckCircle2, Globe, Github, Twitter
+    User, Settings, Grid, Activity, Award, History,
+    Copy, CheckCircle2, Globe, Github, Twitter, FileCode
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import AgentAvatar from '../components/AgentAvatar';
+import { API_URL } from '../config';
 
 const Dashboard = () => {
-    const { isConnected, marketplaceAgents, purchasedAgents, username, account } = useWallet();
+    const { isConnected, marketplaceAgents, purchasedAgents, rawPurchases, rawSales, username, account } = useWallet();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('deployments');
     const [copied, setCopied] = useState(false);
@@ -37,7 +39,55 @@ const Dashboard = () => {
         }
 
         return merged;
-    }, [marketplaceAgents, purchasedAgents, isConnected, account, username]);
+    }, [isConnected, account, marketplaceAgents, purchasedAgents, username]);
+
+    const historyEvents = useMemo(() => {
+        let events = [];
+        if (rawPurchases && rawPurchases.length > 0) {
+            events = events.concat(rawPurchases.map(p => ({
+                id: `purchase_${p.agentId}_${p.timestamp}`,
+                type: 'PURCHASE',
+                label: 'Purchased access to',
+                agentId: p.agentId,
+                timestamp: p.timestamp,
+                txHash: p.txHash,
+                date: new Date(p.timestamp)
+            })));
+        }
+
+        if (rawSales && rawSales.length > 0) {
+            events = events.concat(rawSales.map(p => ({
+                id: `sale_${p.agentId}_${p.timestamp}_${p.buyer}`,
+                type: 'SALE',
+                label: 'New sale for',
+                agentId: p.agentId,
+                timestamp: p.timestamp,
+                txHash: p.txHash,
+                date: new Date(p.timestamp)
+            })));
+        }
+
+        if (marketplaceAgents && account) {
+            const lowerAccount = account.toLowerCase();
+            const listed = marketplaceAgents.filter(agent => {
+                const agentOwner = agent.owner ? agent.owner.toLowerCase() : '';
+                return (agentOwner === lowerAccount) ||
+                    (username && agent.owner === username) ||
+                    (agent.creator === username);
+            });
+            events = events.concat(listed.map(a => ({
+                id: `list_${a.id}_${a.dateCreated}`,
+                type: 'LISTING',
+                label: 'Deployed entity',
+                agentId: a.id,
+                timestamp: a.dateCreated,
+                txHash: a.txHash,
+                date: new Date(a.dateCreated || Date.now())
+            })));
+        }
+
+        return events.sort((a, b) => b.date - a.date);
+    }, [rawPurchases, rawSales, marketplaceAgents, account, username]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(account);
@@ -181,10 +231,11 @@ const Dashboard = () => {
                 </div>
 
                 {/* Tabs Terminal */}
-                <div style={{ marginBottom: '40px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '40px' }}>
+                <div style={{ marginBottom: '40px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '40px', overflowX: 'auto' }}>
                     {[
                         { id: 'deployments', label: 'My Deployments', icon: Grid },
                         { id: 'activity', label: 'Recent Activity', icon: Activity },
+                        { id: 'history', label: 'History', icon: History },
                         { id: 'settings', label: 'Access Keys', icon: Terminal }
                     ].map(tab => (
                         <button
@@ -251,27 +302,42 @@ const Dashboard = () => {
                                             </div>
                                         </div>
 
-                                        <div style={{ display: 'flex', gap: '12px' }}>
+                                        {agent.txHash && (
+                                            <div style={{ marginTop: '-8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 8px' }}>
+                                                <div style={{ fontSize: '10px', color: '#555', fontWeight: '800' }}>TX HASH</div>
+                                                <a
+                                                    href={`https://sepolia.basescan.org/tx/${agent.txHash}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    style={{ fontSize: '11px', color: '#4dff88', fontFamily: 'monospace', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                >
+                                                    {agent.txHash.slice(0, 10)}...{agent.txHash.slice(-8)}
+                                                    <ExternalLink size={10} />
+                                                </a>
+                                            </div>
+                                        )}
+
+                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                             {(purchasedAgents && purchasedAgents.some(pa => pa.id.toString() === agent.id.toString())) ? (
                                                 <button
                                                     onClick={() => {
-                                                        const url = `http://localhost:3001/api/agents/${agent.id}/download?buyer=${account}`;
+                                                        const url = `${API_URL}/api/agents/${agent.id}/download?buyer=${account}`;
                                                         const link = document.createElement("a");
                                                         link.href = url;
                                                         link.click();
                                                     }}
                                                     className="btn btn-primary"
-                                                    style={{ flex: 1, height: '48px', borderRadius: '12px', gap: '8px', background: 'var(--brand-warm)', color: '#000' }}
+                                                    style={{ flex: '1 1 auto', height: '44px', borderRadius: '12px', gap: '8px', background: 'var(--brand-warm)', color: '#000', fontSize: '12px', padding: '0 12px' }}
                                                 >
-                                                    <Package size={16} /> Download Code
+                                                    <Package size={14} /> Download Code
                                                 </button>
                                             ) : null}
                                             <button
                                                 onClick={() => navigate(`/agent/${agent.id}`)}
                                                 className="btn btn-outline"
-                                                style={{ flex: 1, height: '48px', borderRadius: '12px', gap: '8px' }}
+                                                style={{ flex: '1 1 auto', height: '44px', borderRadius: '12px', gap: '8px', fontSize: '12px', padding: '0 12px' }}
                                             >
-                                                <ExternalLink size={16} /> View Entity
+                                                <ExternalLink size={14} /> View Entity
                                             </button>
                                         </div>
                                     </div>
@@ -291,6 +357,61 @@ const Dashboard = () => {
                         <div style={{ padding: '60px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', borderRadius: '32px', border: '1px solid var(--border-color)' }}>
                             <Activity size={32} style={{ opacity: 0.1, marginBottom: '16px' }} />
                             <div style={{ color: '#444', fontWeight: '700' }}>Protocol activity stream appearing soon...</div>
+                        </div>
+                    )}
+
+                    {activeTab === 'history' && (
+                        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '32px', padding: '32px' }}>
+                            <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <History size={20} color="var(--brand-primary)" />
+                                Transaction History
+                            </h3>
+
+                            {historyEvents && historyEvents.length > 0 ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                    {historyEvents.map((event, index) => {
+                                        const agent = marketplaceAgents.find(a => a.id.toString() === event.agentId.toString());
+                                        return (
+                                            <div key={event.id} style={{ padding: '20px', background: '#000', border: '1px solid #1a1a1a', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                                    <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <Activity size={18} color="#444" />
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ color: '#fff', fontWeight: '800', fontSize: '14px', marginBottom: '4px' }}>
+                                                            {event.label} {agent ? `'${agent.name}'` : `#${event.agentId}`}
+                                                        </div>
+                                                        <div style={{ color: '#555', fontSize: '12px', fontWeight: '600' }}>
+                                                            {event.date.toLocaleString()}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px', background: 'rgba(255,255,255,0.02)', padding: '12px 16px', borderRadius: '12px', minWidth: '300px' }}>
+                                                    <div style={{ fontSize: '10px', color: '#666', fontWeight: '800', letterSpacing: '0.1em' }}>TRANSACTION HASH</div>
+                                                    {event.txHash ? (
+                                                        <a
+                                                            href={`https://sepolia.basescan.org/tx/${event.txHash}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            style={{ color: '#4dff88', fontSize: '12px', fontFamily: 'monospace', textDecoration: 'none', wordBreak: 'break-all' }}
+                                                        >
+                                                            {event.txHash} <ExternalLink size={10} style={{ display: 'inline', marginLeft: '4px' }} />
+                                                        </a>
+                                                    ) : (
+                                                        <span style={{ color: '#888', fontSize: '12px', fontFamily: 'monospace' }}>Mocked / Seeded via Database</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '60px 0', opacity: 0.5 }}>
+                                    <FileCode size={32} style={{ marginBottom: '16px' }} />
+                                    <div style={{ fontWeight: '700' }}>No transactions recorded yet.</div>
+                                </div>
+                            )}
                         </div>
                     )}
 

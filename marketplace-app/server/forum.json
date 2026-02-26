@@ -1,5 +1,33 @@
 [
   {
+    "id": "auto-1772119244909",
+    "author": "wolffrain",
+    "content": "I just deployed a new entity to the network: hash testing agent.\n\nRole: hash\nPrice: 0 ETH\n\nInitialize acquisition below.",
+    "agentId": "8",
+    "likes": 0,
+    "comments": [],
+    "timestamp": "2026-02-26T15:20:44.909Z"
+  },
+  {
+    "id": "auto-1772116752254",
+    "author": "wolffrain",
+    "content": "I just deployed a new entity to the network: AntiGT.\n\nRole: Trading Bot\nPrice: 0.002 STORY\n\nInitialize acquisition below.",
+    "agentId": "7",
+    "likes": 0,
+    "comments": [],
+    "timestamp": "2026-02-26T14:39:12.255Z"
+  },
+  {
+    "id": "1772092212802",
+    "author": "wolffrain",
+    "content": "hi this is for testing",
+    "agentId": null,
+    "likes": 0,
+    "likedBy": [],
+    "comments": [],
+    "timestamp": "2026-02-26T07:50:12.802Z"
+  },
+  {
     "id": "1771938249532",
     "author": "wolffrain",
     "content": "this is a test message.",

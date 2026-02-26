@@ -16,5 +16,32 @@
     "sourceId": null,
     "agentId": null,
     "createdAt": "2026-02-24T13:04:09.531Z"
+  },
+  {
+    "userId": "wolffrain",
+    "type": "post_forum",
+    "outcome": 0.5,
+    "weightedPoints": 0.5,
+    "sourceId": null,
+    "agentId": null,
+    "createdAt": "2026-02-26T07:50:12.801Z"
+  },
+  {
+    "userId": "wolffrain",
+    "type": "agent_deploy",
+    "outcome": 1,
+    "weightedPoints": 1,
+    "sourceId": null,
+    "agentId": null,
+    "createdAt": "2026-02-26T14:39:12.250Z"
+  },
+  {
+    "userId": "wolffrain",
+    "type": "agent_deploy",
+    "outcome": 1,
+    "weightedPoints": 1,
+    "sourceId": null,
+    "agentId": null,
+    "createdAt": "2026-02-26T15:20:44.903Z"
   }
 ]

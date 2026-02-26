@@ -3,5 +3,10 @@
     "agentId": "6",
     "buyer": "0x4cd579703129f3208e335c4a36e05db1b36907c9",
     "timestamp": "2026-02-24T18:33:38.355Z"
+  },
+  {
+    "agentId": "6",
+    "buyer": "0x9527c9fd391ccd48f7278fe7c7c09b786a0bb832",
+    "timestamp": "2026-02-26T14:42:41.845Z"
   }
 ]

@@ -6,6 +6,8 @@ const WalletContext = createContext();
 
 export const useWallet = () => useContext(WalletContext);
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 export const WalletProvider = ({ children }) => {
     // --- State Management ---
     const [account, setAccount] = useState(null);
@@ -17,6 +19,8 @@ export const WalletProvider = ({ children }) => {
     // Marketplace Data
     const [marketplaceAgents, setMarketplaceAgents] = useState([]);
     const [purchasedAgents, setPurchasedAgents] = useState([]);
+    const [rawPurchases, setRawPurchases] = useState([]);
+    const [rawSales, setRawSales] = useState([]);
     const [auctions, setAuctions] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -24,8 +28,8 @@ export const WalletProvider = ({ children }) => {
     const loadMarketplaceData = useCallback(async () => {
         try {
             const [agentsRes, auctionsRes] = await Promise.all([
-                fetch('http://localhost:3001/api/agents').catch(() => ({ ok: false })),
-                fetch('http://localhost:3001/api/auctions').catch(() => ({ ok: false }))
+                fetch(`${API_URL}/api/agents`).catch(() => ({ ok: false })),
+                fetch(`${API_URL}/api/auctions`).catch(() => ({ ok: false }))
             ]);
 
             if (agentsRes.ok) setMarketplaceAgents(await agentsRes.json());
@@ -44,16 +48,26 @@ export const WalletProvider = ({ children }) => {
     // Web 2.5 Hybrid Match: Find which of the active agents this user has bought access to
     useEffect(() => {
         if (account && marketplaceAgents.length > 0) {
-            fetch(`http://localhost:3001/api/purchases/${account}`)
+            fetch(`${API_URL}/api/purchases/${account}`)
                 .then(res => res.json())
                 .then(data => {
+                    setRawPurchases(data);
                     const purchasedIds = data.map(d => d.agentId.toString());
                     const bought = marketplaceAgents.filter(a => purchasedIds.includes(a.id.toString()));
                     setPurchasedAgents(bought);
                 })
                 .catch(e => console.error("Failed to fetch cross-chain purchases", e));
+
+            fetch(`${API_URL}/api/purchases/sales/${account}`)
+                .then(res => res.json())
+                .then(data => {
+                    setRawSales(data);
+                })
+                .catch(e => console.error("Failed to fetch cross-chain sales", e));
         } else {
             setPurchasedAgents([]);
+            setRawPurchases([]);
+            setRawSales([]);
         }
     }, [account, marketplaceAgents]);
 
@@ -77,7 +91,7 @@ export const WalletProvider = ({ children }) => {
 
     const fetchBackendIdentity = async (address) => {
         try {
-            const res = await fetch(`http://localhost:3001/api/users/${address}`);
+            const res = await fetch(`${API_URL}/api/users/${address}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data && data.username) {
@@ -134,19 +148,41 @@ export const WalletProvider = ({ children }) => {
             const accounts = await provider.send("eth_requestAccounts", []);
 
             if (accounts.length > 0) {
-                const address = accounts[0];
-                setAccount(address.toLowerCase());
+                const address = accounts[0].toLowerCase();
+
+                // --- SiWE Authentication Flow ---
+                try {
+                    const nonceRes = await fetch(`${API_URL}/api/auth/nonce?address=${address}`);
+                    const { nonce } = await nonceRes.json();
+
+                    const signer = await provider.getSigner();
+                    const message = `Sign this message to prove you own this wallet and to log in to OpenAgent.\n\nNonce: ${nonce}`;
+                    const signature = await signer.signMessage(message);
+
+                    const verifyRes = await fetch(`${API_URL}/api/auth/verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ address, signature })
+                    });
+
+                    const verifyData = await verifyRes.json();
+                    if (!verifyRes.ok || !verifyData.success) {
+                        throw new Error(verifyData.error || 'Verification failed');
+                    }
+
+                    localStorage.setItem('jwtToken', verifyData.token);
+                } catch (authError) {
+                    console.error("Authentication failed:", authError);
+                    alert("Authentication failed. Please try again.");
+                    setLoading(false);
+                    return false;
+                }
+
+                setAccount(address);
                 setIsConnected(true);
-                setUser({ address: address.toLowerCase(), authType: 'web3' });
+                setUser({ address, authType: 'web3' });
 
                 await syncIdentity(address);
-
-                // Keep backend informed (optional hybrid sync)
-                await fetch('http://localhost:3001/api/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ address, authType: 'web3' })
-                }).catch(() => { });
 
                 localStorage.removeItem('userDisconnected');
 
@@ -168,6 +204,7 @@ export const WalletProvider = ({ children }) => {
         setIsConnected(false);
         setUsername(null);
         setUser(null);
+        localStorage.removeItem('jwtToken');
         localStorage.setItem('userDisconnected', 'true');
     };
 
@@ -255,9 +292,12 @@ export const WalletProvider = ({ children }) => {
 
             setUsername(newName);
 
-            await fetch('http://localhost:3001/api/users', {
+            await fetch(`${API_URL}/api/users`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
                 body: JSON.stringify({ address: account, username: newName })
             }).catch(() => { });
 
@@ -317,9 +357,13 @@ export const WalletProvider = ({ children }) => {
             const extras = ['version', 'contextWindow', 'architecture', 'framework', 'apiDependencies', 'inferenceService', 'license', 'videoLink', 'website', 'discord', 'telegram', 'docs'];
             extras.forEach(ext => formData.append(ext, agentData[ext] || ''));
             formData.append('tags', JSON.stringify(agentData.tags || []));
+            formData.append('txHash', tx.hash);
 
-            const response = await fetch('http://localhost:3001/api/agents', {
+            const response = await fetch(`${API_URL}/api/agents`, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
                 body: formData
             });
 
@@ -351,10 +395,13 @@ export const WalletProvider = ({ children }) => {
             await tx.wait();
 
             // Web 2.5: The agent is a software license, so we DON'T delete it from the marketplace!
-            await fetch(`http://localhost:3001/api/purchases`, {
+            await fetch(`${API_URL}/api/purchases`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ agentId: agent.id, buyer: account })
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
+                body: JSON.stringify({ agentId: agent.id, buyer: account, txHash: tx.hash })
             }).catch(() => { });
 
             setPurchasedAgents(prev => [...prev, agent]);
@@ -362,7 +409,14 @@ export const WalletProvider = ({ children }) => {
 
         } catch (error) {
             console.error("Purchase Error:", error);
-            return { success: false, error: error.reason || error.shortMessage || 'On-chain purchase failed' };
+            let msg = error.reason || error.shortMessage || error.message || 'On-chain purchase failed';
+
+            // Handle common obscure RPC errors for mocked data
+            if (msg.toLowerCase().includes('missing revert data') || msg.toLowerCase().includes('execution reverted')) {
+                msg = 'Transaction reverted. This agent was seeded in the database but may not exist on the testnet smart contract. Try deploying a new agent first!';
+            }
+
+            return { success: false, error: msg };
         }
     };
 
@@ -380,9 +434,12 @@ export const WalletProvider = ({ children }) => {
             const tx = await contract.placeBid(auctionId, { value: amountWei });
             await tx.wait();
 
-            await fetch('http://localhost:3001/api/auctions/bid', {
+            await fetch(`${API_URL}/api/auctions/bid`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
                 body: JSON.stringify({
                     auctionId,
                     bidder: account,
@@ -411,8 +468,11 @@ export const WalletProvider = ({ children }) => {
             await tx.wait();
 
             // 2. Delete off-chain
-            const response = await fetch(`http://localhost:3001/api/agents/${id}`, {
-                method: 'DELETE'
+            const response = await fetch(`${API_URL}/api/agents/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                }
             });
 
             if (response.ok) {
@@ -422,7 +482,13 @@ export const WalletProvider = ({ children }) => {
             return { success: true, warning: 'Delisted on-chain, but server error occurred' };
         } catch (error) {
             console.error("Delist Error:", error);
-            return { success: false, error: error.reason || error.shortMessage || "Delisting failed. Ensure you are the seller." };
+            let msg = error.reason || error.shortMessage || error.message || "Delisting failed. Ensure you are the seller.";
+
+            if (msg.toLowerCase().includes('missing revert data') || msg.toLowerCase().includes('execution reverted')) {
+                msg = 'Transaction reverted. This agent was seeded in the database but may not exist on the testnet smart contract.';
+            }
+
+            return { success: false, error: msg };
         }
     };
 
@@ -446,6 +512,8 @@ export const WalletProvider = ({ children }) => {
             loading,
             trustScore,
             purchasedAgents,
+            rawPurchases,
+            rawSales,
             hasPurchasedFrom: (owner) => purchasedAgents.some(a => (a.owner || '').toLowerCase() === (owner || '').toLowerCase())
         }}>
             {children}

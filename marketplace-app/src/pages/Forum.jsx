@@ -3,6 +3,7 @@ import { useWallet } from '../context/WalletContext';
 import { Heart, MessageCircle, Send, TrendingUp, Bookmark, User, ShieldCheck, Activity, Cpu, Reply, X, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './Forum.css';
+import { API_URL } from '../config';
 
 const Forum = () => {
     const { isConnected, username, account, marketplaceAgents, trustScore } = useWallet();
@@ -23,7 +24,7 @@ const Forum = () => {
 
     const fetchPosts = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/forum');
+            const res = await fetch(`${API_URL}/api/forum`);
             if (res.ok) setPosts(await res.json());
         } catch (error) {
             console.error("Failed to load feed:", error);
@@ -92,9 +93,12 @@ const Forum = () => {
 
         setIsPosting(true);
         try {
-            const res = await fetch('http://localhost:3001/api/forum', {
+            const res = await fetch(`${API_URL}/api/forum`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
                 body: JSON.stringify({
                     author: username || 'Anon',
                     content: newPostContent,
@@ -122,9 +126,12 @@ const Forum = () => {
         if (!isConnected || !commentContent.trim()) return;
 
         try {
-            const res = await fetch(`http://localhost:3001/api/forum/${postId}/comment`, {
+            const res = await fetch(`${API_URL}/api/forum/${postId}/comment`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
                 body: JSON.stringify({
                     author: username || 'Anon',
                     content: commentContent
@@ -143,9 +150,12 @@ const Forum = () => {
     const toggleLike = async (postId) => {
         if (!isConnected) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/forum/${postId}/like`, {
+            const res = await fetch(`${API_URL}/api/forum/${postId}/like`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
                 body: JSON.stringify({ author: username })
             });
 

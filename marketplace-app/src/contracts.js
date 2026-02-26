@@ -541,4 +541,4 @@ export const REGISTRY_ABI = [
     }
 ];
 
-export const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Local address
+export const CONTRACT_ADDRESS = import.meta.env.VITE_REGISTRY_ADDRESS || "0x2baFbf078c211Bb5d4ABE13891821b630a7FB2c0"; // Base Sepolia

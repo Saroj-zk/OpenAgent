@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const purchaseSchema = new mongoose.Schema({
     agentId: { type: String, required: true },
     buyer: { type: String, required: true },
+    txHash: { type: String, default: null },
     timestamp: { type: Date, default: Date.now }
 }, { collection: 'purchases' });
 

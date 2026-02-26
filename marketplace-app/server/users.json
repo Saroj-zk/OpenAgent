@@ -10,16 +10,14 @@
     "address": "0x9527c9fd391ccd48f7278fe7c7c09b786a0bb832",
     "authType": "web3",
     "username": "wolffrain",
-    "lastLogin": "2026-02-25T10:07:10.836Z",
-    "last_activity_at": "2026-02-24T13:04:09.531Z",
-    "hidden_rating": 10.079515449934961,
-    "daily_total_date": "2026-02-24",
-    "daily_weighted_total": 0.6626287494579977,
-    "daily_from_others": {
-      "BaseBuilder": 0.16262874945799766
-    },
-    "visible_trust": 125,
-    "daily_posts_date": "2026-02-24",
+    "lastLogin": "2026-02-26T10:03:09.420Z",
+    "last_activity_at": "2026-02-26T15:20:44.902Z",
+    "hidden_rating": 10.37951544993496,
+    "daily_total_date": "2026-02-26",
+    "daily_weighted_total": 2.5,
+    "daily_from_others": {},
+    "visible_trust": 126,
+    "daily_posts_date": "2026-02-26",
     "daily_posts_count": 1
   },
   "0x2668ed248704baf946f5aa2aa72430ae9df52831": {
