@@ -10,6 +10,17 @@
     "address": "0x9527c9fd391ccd48f7278fe7c7c09b786a0bb832",
     "authType": "web3",
     "username": "wolffrain",
-    "lastLogin": "2026-02-20T15:04:05.080Z"
+    "lastLogin": "2026-02-25T10:07:10.836Z"
+  },
+  "0x2668ed248704baf946f5aa2aa72430ae9df52831": {
+    "address": "0x2668ed248704baf946f5aa2aa72430ae9df52831",
+    "authType": "web3",
+    "lastLogin": "2026-02-24T18:17:33.362Z"
+  },
+  "0x4cd579703129f3208e335c4a36e05db1b36907c9": {
+    "address": "0x4cd579703129f3208e335c4a36e05db1b36907c9",
+    "authType": "web3",
+    "lastLogin": "2026-02-24T18:31:33.528Z",
+    "username": "testing"
   }
 }

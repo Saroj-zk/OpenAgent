@@ -9,7 +9,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import AgentAvatar from '../components/AgentAvatar';
 
 const Dashboard = () => {
-    const { isConnected, marketplaceAgents, username, account } = useWallet();
+    const { isConnected, marketplaceAgents, purchasedAgents, username, account } = useWallet();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('deployments');
     const [copied, setCopied] = useState(false);
@@ -17,13 +17,27 @@ const Dashboard = () => {
     const myAgents = useMemo(() => {
         if (!isConnected || !account) return [];
         const lowerAccount = account.toLowerCase();
-        return marketplaceAgents.filter(agent => {
+
+        // Agents created/owned entirely
+        const listed = marketplaceAgents.filter(agent => {
             const agentOwner = agent.owner ? agent.owner.toLowerCase() : '';
             return (agentOwner === lowerAccount) ||
                 (username && agent.owner === username) ||
                 (agent.creator === username);
         });
-    }, [marketplaceAgents, isConnected, account, username]);
+
+        // Merge with purchased software licenses
+        const allSet = new Set(listed.map(a => a.id.toString()));
+        const merged = [...listed];
+
+        if (purchasedAgents) {
+            purchasedAgents.forEach(pa => {
+                if (!allSet.has(pa.id.toString())) merged.push(pa);
+            });
+        }
+
+        return merged;
+    }, [marketplaceAgents, purchasedAgents, isConnected, account, username]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(account);
@@ -237,13 +251,29 @@ const Dashboard = () => {
                                             </div>
                                         </div>
 
-                                        <button
-                                            onClick={() => navigate(`/agent/${agent.id}`)}
-                                            className="btn btn-outline"
-                                            style={{ width: '100%', height: '48px', borderRadius: '12px', gap: '8px' }}
-                                        >
-                                            <ExternalLink size={16} /> View Entity Info
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '12px' }}>
+                                            {(purchasedAgents && purchasedAgents.some(pa => pa.id.toString() === agent.id.toString())) ? (
+                                                <button
+                                                    onClick={() => {
+                                                        const url = `http://localhost:3001/api/agents/${agent.id}/download?buyer=${account}`;
+                                                        const link = document.createElement("a");
+                                                        link.href = url;
+                                                        link.click();
+                                                    }}
+                                                    className="btn btn-primary"
+                                                    style={{ flex: 1, height: '48px', borderRadius: '12px', gap: '8px', background: 'var(--brand-warm)', color: '#000' }}
+                                                >
+                                                    <Package size={16} /> Download Code
+                                                </button>
+                                            ) : null}
+                                            <button
+                                                onClick={() => navigate(`/agent/${agent.id}`)}
+                                                className="btn btn-outline"
+                                                style={{ flex: 1, height: '48px', borderRadius: '12px', gap: '8px' }}
+                                            >
+                                                <ExternalLink size={16} /> View Entity
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

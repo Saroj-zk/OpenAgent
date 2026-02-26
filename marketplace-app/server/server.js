@@ -1,9 +1,22 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const mongoose = require('mongoose');
+const Agent = require('./models/Agent');
+const Purchase = require('./models/Purchase');
+
+const MONGO_URI = process.env.MONGO_URI;
+if (MONGO_URI && !MONGO_URI.includes('<db_password>')) {
+    mongoose.connect(MONGO_URI)
+        .then(() => console.log('✅ Connected to MongoDB Atlas'))
+        .catch(err => console.error('❌ MongoDB Connection Error:', err));
+} else {
+    console.warn('⚠️ MongoDB connection string missing or password not set in .env');
+}
 
 const app = express();
 const PORT = 3001;
@@ -17,6 +30,7 @@ const AGENTS_FILE = path.join(__dirname, 'agents.json');
 const USERS_FILE = path.join(__dirname, 'users.json');
 const AUCTIONS_FILE = path.join(__dirname, 'auctions.json');
 const FORUM_FILE = path.join(__dirname, 'forum.json');
+const PURCHASES_FILE = path.join(__dirname, 'purchases.json');
 
 // Ensure directories and files exist
 if (!fs.existsSync(path.join(__dirname, 'uploads'))) fs.mkdirSync(path.join(__dirname, 'uploads'));
@@ -24,6 +38,7 @@ if (!fs.existsSync(AGENTS_FILE)) fs.writeFileSync(AGENTS_FILE, '[]');
 if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, '{}');
 if (!fs.existsSync(AUCTIONS_FILE)) fs.writeFileSync(AUCTIONS_FILE, '[]');
 if (!fs.existsSync(FORUM_FILE)) fs.writeFileSync(FORUM_FILE, '[]');
+if (!fs.existsSync(PURCHASES_FILE)) fs.writeFileSync(PURCHASES_FILE, '[]');
 
 // Config Multer
 const storage = multer.diskStorage({
@@ -39,17 +54,27 @@ const write = (file, data) => fs.writeFileSync(file, JSON.stringify(data, null, 
 // --- API ---
 
 // AGENTS
-app.get('/api/agents', (req, res) => res.json(read(AGENTS_FILE)));
+app.get('/api/agents', async (req, res) => {
+    try {
+        // Fetch from MongoDB, officially sorted by latest
+        const agents = await Agent.find().sort({ id: -1 });
+        res.json(agents);
+    } catch (err) {
+        console.error("Failed to fetch agents:", err);
+        res.status(500).json({ error: 'Database fetch failed' });
+    }
+});
 
-app.post('/api/agents', upload.single('image'), (req, res) => {
-    const agents = read(AGENTS_FILE);
+const cpUpload = upload.fields([{ name: 'image', maxCount: 1 }, { name: 'agentCode', maxCount: 1 }]);
+
+app.post('/api/agents', cpUpload, async (req, res) => {
     const {
         id, name, role, price, currency, description, owner, github, model,
         version, contextWindow, architecture, framework, apiDependencies,
         inferenceService, license, tags, videoLink, website, discord, telegram, docs
     } = req.body;
 
-    const newAgent = {
+    const newAgentData = {
         id: id ? (typeof id === 'string' ? parseInt(id) : id) : Date.now(),
         name,
         role,
@@ -73,49 +98,118 @@ app.post('/api/agents', upload.single('image'), (req, res) => {
         discord,
         telegram,
         docs,
-        image: req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : '/assets/agent1.png',
+        image: req.files && req.files['image'] ? `http://localhost:${PORT}/uploads/${req.files['image'][0].filename}` : '/assets/agent1.png',
+        codeFile: req.files && req.files['agentCode'] ? req.files['agentCode'][0].filename : null,
         status: 'Active',
-        dateCreated: new Date().toISOString()
+        dateCreated: new Date()
     };
 
-    agents.unshift(newAgent);
-    write(AGENTS_FILE, agents);
-
     try {
-        const forum = read(FORUM_FILE);
-        const newPost = {
-            id: 'auto-' + Date.now().toString(),
-            author: owner,
-            content: `I just deployed a new entity to the network: ${name}.\n\nRole: ${role}\nPrice: ${price} ${currency || 'ETH'}\n\nInitialize acquisition below.`,
-            agentId: newAgent.id.toString(),
-            likes: 0,
-            comments: [],
-            timestamp: new Date().toISOString()
-        };
-        forum.unshift(newPost);
-        write(FORUM_FILE, forum);
-    } catch (e) {
-        console.error("Failed to auto-post to forum", e);
-    }
+        const newAgent = await Agent.create(newAgentData);
 
-    res.status(201).json(newAgent);
-});
-
-app.delete('/api/agents/:id', (req, res) => {
-    try {
-        const agents = read(AGENTS_FILE);
-        const initialCount = agents.length;
-        const updated = agents.filter(a => a.id.toString() !== req.params.id.toString());
-
-        if (updated.length === initialCount) {
-            return res.status(404).json({ error: 'Agent not found in registry' });
+        try {
+            const forum = read(FORUM_FILE);
+            const newPost = {
+                id: 'auto-' + Date.now().toString(),
+                author: owner,
+                content: `I just deployed a new entity to the network: ${name}.\n\nRole: ${role}\nPrice: ${price} ${currency || 'ETH'}\n\nInitialize acquisition below.`,
+                agentId: newAgent.id.toString(),
+                likes: 0,
+                comments: [],
+                timestamp: new Date().toISOString()
+            };
+            forum.unshift(newPost);
+            write(FORUM_FILE, forum);
+        } catch (e) {
+            console.error("Failed to auto-post to forum", e);
         }
 
-        write(AGENTS_FILE, updated);
+        res.status(201).json(newAgent);
+    } catch (error) {
+        console.error("Failed to save agent to MongoDB", error);
+        res.status(500).json({ error: 'Failed to create agent' });
+    }
+});
+
+app.delete('/api/agents/:id', async (req, res) => {
+    try {
+        const result = await Agent.deleteOne({ id: req.params.id });
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ error: 'Agent not found in registry' });
+        }
         res.json({ success: true });
     } catch (error) {
         console.error("Delete agent error:", error);
         res.status(500).json({ error: 'Failed to modify registry' });
+    }
+});
+
+// PURCHASES (Web 2.5 Hybrid)
+app.post('/api/purchases', async (req, res) => {
+    const { agentId, buyer } = req.body;
+    if (!agentId || !buyer) return res.status(400).json({ error: 'Missing data' });
+
+    try {
+        const exists = await Purchase.findOne({ agentId: agentId.toString(), buyer: buyer.toLowerCase() });
+        if (!exists) {
+            await Purchase.create({ agentId: agentId.toString(), buyer: buyer.toLowerCase() });
+
+            // Legacy JSON sync
+            const purchases = read(PURCHASES_FILE);
+            purchases.push({ agentId: agentId.toString(), buyer: buyer.toLowerCase(), timestamp: new Date().toISOString() });
+            write(PURCHASES_FILE, purchases);
+        }
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Purchase logging error:", error);
+        res.status(500).json({ error: 'Failed to record purchase' });
+    }
+});
+
+app.get('/api/purchases/:buyer', async (req, res) => {
+    try {
+        const buyer = req.params.buyer.toLowerCase();
+        // Return from MongoDB
+        const userPurchases = await Purchase.find({ buyer });
+        res.json(userPurchases);
+    } catch (error) {
+        console.error("Fetch purchases error:", error);
+        res.status(500).json({ error: 'Failed to fetch purchases' });
+    }
+});
+
+// DOWNLOAD AGENT CODE
+app.get('/api/agents/:id/download', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const buyer = req.query.buyer?.toLowerCase();
+
+        if (!buyer) return res.status(400).json({ error: 'Wallet address required for verification' });
+
+        const agent = await Agent.findOne({ id });
+        if (!agent) return res.status(404).json({ error: 'Agent not found' });
+
+        // Check ownership/purchase
+        const isOwner = agent.creator?.toLowerCase() === buyer || agent.owner?.toLowerCase() === buyer;
+        const hasBought = await Purchase.findOne({ agentId: id.toString(), buyer });
+
+        if (!isOwner && !hasBought) {
+            return res.status(403).json({ error: 'Access denied: You have not acquired this agent token' });
+        }
+
+        if (!agent.codeFile) {
+            return res.status(404).json({ error: 'No source code uploaded for this agent' });
+        }
+
+        const filePath = path.join(__dirname, 'uploads', agent.codeFile);
+        if (fs.existsSync(filePath)) {
+            res.download(filePath, `${agent.name.replace(/\s+/g, '_')}_Source.zip`);
+        } else {
+            res.status(404).json({ error: 'File not found on server' });
+        }
+    } catch (error) {
+        console.error("Download error:", error);
+        res.status(500).json({ error: 'Failed to process download' });
     }
 });
 

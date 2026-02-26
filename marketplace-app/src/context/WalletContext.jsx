@@ -40,6 +40,22 @@ export const WalletProvider = ({ children }) => {
         loadMarketplaceData();
     }, [loadMarketplaceData]);
 
+    // Web 2.5 Hybrid Match: Find which of the active agents this user has bought access to
+    useEffect(() => {
+        if (account && marketplaceAgents.length > 0) {
+            fetch(`http://localhost:3001/api/purchases/${account}`)
+                .then(res => res.json())
+                .then(data => {
+                    const purchasedIds = data.map(d => d.agentId.toString());
+                    const bought = marketplaceAgents.filter(a => purchasedIds.includes(a.id.toString()));
+                    setPurchasedAgents(bought);
+                })
+                .catch(e => console.error("Failed to fetch cross-chain purchases", e));
+        } else {
+            setPurchasedAgents([]);
+        }
+    }, [account, marketplaceAgents]);
+
     // Helper: Sync Identity from Blockchain or Backend (Hybrid)
     const syncIdentity = async (address) => {
         try {
@@ -86,6 +102,33 @@ export const WalletProvider = ({ children }) => {
         try {
             setLoading(true);
             const provider = new BrowserProvider(window.ethereum);
+
+            // Ensure we are on Base Sepolia
+            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+            if (chainId !== '0x14a34') {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x14a34' }],
+                    });
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: '0x14a34',
+                                chainName: 'Base Sepolia',
+                                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                rpcUrls: ['https://sepolia.base.org'],
+                                blockExplorerUrls: ['https://sepolia.basescan.org'],
+                            }],
+                        });
+                    } else {
+                        throw switchError;
+                    }
+                }
+            }
+
             const accounts = await provider.send("eth_requestAccounts", []);
 
             if (accounts.length > 0) {
@@ -139,11 +182,38 @@ export const WalletProvider = ({ children }) => {
             });
             window.ethereum.on('chainChanged', () => window.location.reload());
 
+            const switchNetwork = async () => {
+                if (!window.ethereum) return;
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x14a34' }],
+                    });
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: '0x14a34',
+                                    chainName: 'Base Sepolia',
+                                    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                    rpcUrls: ['https://sepolia.base.org'],
+                                    blockExplorerUrls: ['https://sepolia.basescan.org'],
+                                }],
+                            });
+                        } catch (addError) {
+                            console.error("Error adding network:", addError);
+                        }
+                    }
+                }
+            };
+
             const checkNetwork = async () => {
                 const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                // Base Mainnet: 0x2105 (8453), Base Sepolia: 0x14a34 (84532), Localhost: 0x539 (1337)
-                if (chainId !== '0x2105' && chainId !== '0x14a34' && chainId !== '0x539') {
-                    console.warn(`Connected to unsupported chain: ${chainId}. Please switch to Base.`);
+                if (chainId !== '0x14a34') {
+                    console.warn(`Connected to unsupported chain: ${chainId}. Switching to Base Sepolia.`);
+                    await switchNetwork();
                 }
             };
             checkNetwork();
@@ -167,6 +237,14 @@ export const WalletProvider = ({ children }) => {
 
         try {
             const provider = new BrowserProvider(window.ethereum);
+
+            // Hard check network before signing
+            const { chainId } = await provider.getNetwork();
+            if (chainId !== 84532n && chainId !== 84532) { // 0x14a34
+                await switchNetwork();
+                return { success: false, error: 'Switched network to Base Sepolia. Please try again.' };
+            }
+
             const signer = await provider.getSigner();
             const contract = new Contract(CONTRACT_ADDRESS, REGISTRY_ABI, signer);
 
@@ -190,11 +268,19 @@ export const WalletProvider = ({ children }) => {
     };
 
     // 3. Sell Agent
-    const addAgent = async (agentData, imageFile) => {
+    const addAgent = async (agentData, imageFile, codeFile) => {
         if (!isConnected) return false;
 
         try {
             const provider = new BrowserProvider(window.ethereum);
+
+            // Hard check network 
+            const { chainId } = await provider.getNetwork();
+            if (chainId !== 84532n && chainId !== 84532) {
+                await switchNetwork();
+                return false;
+            }
+
             const signer = await provider.getSigner();
             const contract = new Contract(CONTRACT_ADDRESS, REGISTRY_ABI, signer);
 
@@ -224,6 +310,7 @@ export const WalletProvider = ({ children }) => {
             formData.append('owner', username || account);
 
             if (imageFile) formData.append('image', imageFile);
+            if (codeFile) formData.append('agentCode', codeFile);
 
             const extras = ['version', 'contextWindow', 'architecture', 'framework', 'apiDependencies', 'inferenceService', 'license', 'videoLink', 'website', 'discord', 'telegram', 'docs'];
             extras.forEach(ext => formData.append(ext, agentData[ext] || ''));
@@ -261,17 +348,16 @@ export const WalletProvider = ({ children }) => {
             const tx = await contract.buyAgent(agent.id, { value: priceWei });
             await tx.wait();
 
-            const response = await fetch(`http://localhost:3001/api/agents/${agent.id}`, {
-                method: 'DELETE'
-            });
+            // Web 2.5: The agent is a software license, so we DON'T delete it from the marketplace!
+            await fetch(`http://localhost:3001/api/purchases`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ agentId: agent.id, buyer: account })
+            }).catch(() => { });
 
-            if (response.ok) {
-                setMarketplaceAgents(prev => prev.filter(a => a.id.toString() !== agent.id.toString()));
-                setPurchasedAgents(prev => [...prev, agent]);
-                return { success: true };
-            }
+            setPurchasedAgents(prev => [...prev, agent]);
+            return { success: true };
 
-            return { success: true, warning: 'Bought on-chain, but server sync failed' };
         } catch (error) {
             console.error("Purchase Error:", error);
             return { success: false, error: error.reason || error.shortMessage || 'On-chain purchase failed' };
