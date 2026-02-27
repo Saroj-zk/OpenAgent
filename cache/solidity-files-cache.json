@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\Admin\\Downloads\\Code Works\\AI agent marketplace\\contracts\\OpenAgentRegistry.sol": {
-      "lastModificationDate": 1771582198149,
-      "contentHash": "e623c3b88454a1f90df4fb4a02986e5b",
+      "lastModificationDate": 1772205089505,
+      "contentHash": "22e1cce9fdeb1695567919664c69a238",
       "sourceName": "contracts/OpenAgentRegistry.sol",
       "solcConfig": {
         "version": "0.8.19",

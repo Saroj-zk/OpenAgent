@@ -178,6 +178,37 @@ export const REGISTRY_ABI = [
         "inputs": [
             {
                 "indexed": true,
+                "internalType": "uint256",
+                "name": "agentId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "buyer",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "recipient",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "EscrowSettled",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
                 "internalType": "address",
                 "name": "user",
                 "type": "address"
@@ -351,6 +382,40 @@ export const REGISTRY_ABI = [
                 "type": "address"
             }
         ],
+        "name": "escrows",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address payable",
+                "name": "creator",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "isSettled",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
         "name": "hasAccess",
         "outputs": [
             {
@@ -474,6 +539,29 @@ export const REGISTRY_ABI = [
         "inputs": [
             {
                 "internalType": "uint256",
+                "name": "_agentId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address payable",
+                "name": "_buyer",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "_favorBuyer",
+                "type": "bool"
+            }
+        ],
+        "name": "resolveEscrow",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
                 "name": "_id",
                 "type": "uint256"
             }
@@ -541,4 +629,4 @@ export const REGISTRY_ABI = [
     }
 ];
 
-export const CONTRACT_ADDRESS = import.meta.env.VITE_REGISTRY_ADDRESS || "0x2baFbf078c211Bb5d4ABE13891821b630a7FB2c0"; // Base Sepolia
+export const CONTRACT_ADDRESS = import.meta.env.VITE_REGISTRY_ADDRESS || "0x64ff14cfaCc453CC204fAAde8a77A3C7E644663E";

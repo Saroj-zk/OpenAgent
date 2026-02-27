@@ -88,6 +88,17 @@ contract OpenAgentRegistry {
         return id;
     }
 
+    struct Escrow {
+        uint256 amount;
+        address payable creator;
+        bool isSettled;
+    }
+    
+    // agentId => buyer => Escrow
+    mapping(uint256 => mapping(address => Escrow)) public escrows;
+
+    event EscrowSettled(uint256 indexed agentId, address indexed buyer, address recipient, uint256 amount);
+
     // Users buy access (a license) to the agent
     function buyAgent(uint256 _id) external payable {
         Agent storage agent = agents[_id];
@@ -101,9 +112,34 @@ contract OpenAgentRegistry {
         uint256 creatorProceeds = msg.value - fee;
         
         payable(owner).transfer(fee);
-        agent.creator.transfer(creatorProceeds);
+        
+        // HOLD creatorProceeds in escrow instead of immediate transfer
+        escrows[_id][msg.sender] = Escrow(creatorProceeds, agent.creator, false);
 
         emit AgentBought(_id, msg.sender, agent.price);
+    }
+
+    // Arbitration: The platform owner can resolve escrows
+    // If favorBuyer is true, the buyer gets refunded.
+    // If favorBuyer is false, the escrowed funds are finally paid to the creator.
+    function resolveEscrow(uint256 _agentId, address payable _buyer, bool _favorBuyer) external onlyOwner {
+        Escrow storage escrow = escrows[_agentId][_buyer];
+        require(!escrow.isSettled, "Escrow already settled or does not exist");
+        require(escrow.amount > 0, "No funds in escrow");
+
+        escrow.isSettled = true;
+
+        if (_favorBuyer) {
+            // Revoke access
+            hasAccess[_agentId][_buyer] = false;
+            // Refund the buyer
+            _buyer.transfer(escrow.amount);
+            emit EscrowSettled(_agentId, _buyer, _buyer, escrow.amount);
+        } else {
+            // Pay the creator
+            escrow.creator.transfer(escrow.amount);
+            emit EscrowSettled(_agentId, _buyer, escrow.creator, escrow.amount);
+        }
     }
 
     function delistAgent(uint256 _id) external {
