@@ -97,7 +97,8 @@ export const WalletProvider = ({ children }) => {
                 const data = await res.json();
                 if (data && data.username) {
                     setUsername(data.username);
-                    if (data.trustScore !== undefined) setTrustScore(data.trustScore);
+                    setTrustScore(data.trustScore || 10);
+                    setUser(data);
                     return;
                 }
             }
@@ -110,55 +111,85 @@ export const WalletProvider = ({ children }) => {
     // --- Blockchain Interactions (Web3) ---
 
     // 1. Connect Wallet
-    const connectWallet = async () => {
-        if (!window.ethereum) {
-            alert("Please install MetaMask to interact with this marketplace.");
+    const connectWallet = async (selectedProvider = window.ethereum) => {
+        if (!selectedProvider) {
+            alert("No wallet selected or installed.");
             return false;
         }
 
         try {
             setLoading(true);
-            const provider = new ethers.BrowserProvider(window.ethereum);
+            const provider = new ethers.BrowserProvider(selectedProvider);
 
-            // Ensure we are on Base Sepolia
-            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-            if (chainId !== '0x14a34') {
+            let chainId = '0x0';
+            try {
+                const network = await provider.getNetwork();
+                chainId = '0x' + network.chainId.toString(16);
+            } catch (networkError) {
+                console.warn("Ethers network check failed, using fallback:", networkError);
+                chainId = selectedProvider.chainId ||
+                    (selectedProvider.networkVersion ? '0x' + parseInt(selectedProvider.networkVersion).toString(16) : '0x0');
+            }
+
+            if (chainId !== '0x14a34' && chainId !== '0x0') {
                 try {
-                    await window.ethereum.request({
+                    await selectedProvider.request({
                         method: 'wallet_switchEthereumChain',
                         params: [{ chainId: '0x14a34' }],
                     });
                 } catch (switchError) {
                     if (switchError.code === 4902) {
-                        await window.ethereum.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [{
-                                chainId: '0x14a34',
-                                chainName: 'Base Sepolia',
-                                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-                                rpcUrls: ['https://sepolia.base.org'],
-                                blockExplorerUrls: ['https://sepolia.basescan.org'],
-                            }],
-                        });
+                        try {
+                            await selectedProvider.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: '0x14a34',
+                                    chainName: 'Base Sepolia',
+                                    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                    rpcUrls: ['https://sepolia.base.org'],
+                                    blockExplorerUrls: ['https://sepolia.basescan.org'],
+                                }],
+                            });
+                        } catch (addError) {
+                            console.error("Error adding network, proceeding anyway:", addError);
+                        }
                     } else {
-                        throw switchError;
+                        console.error("Error switching network, proceeding anyway:", switchError);
                     }
                 }
             }
 
-            const accounts = await provider.send("eth_requestAccounts", []);
+            const accounts = await selectedProvider.request({ method: 'eth_requestAccounts' });
 
-            if (accounts.length > 0) {
+            if (accounts && accounts.length > 0) {
                 const address = accounts[0].toLowerCase();
 
-                // --- SiWE Authentication Flow ---
+                // Fallback direct RPC signing if Ethers provider abstractions fail 
+                // in multi-wallet extension environments (like Coinbase/MetaMask conflicts)
                 try {
-                    const nonceRes = await fetch(`${API_URL}/api/auth/nonce?address=${address}`);
-                    const { nonce } = await nonceRes.json();
+                    const nonceRes = await fetch(`${API_URL}/api/auth/nonce?address=${address}`, {
+                        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+                    });
+                    const nonceData = await nonceRes.json();
+                    const nonce = nonceData.nonce;
+                    const message = `Login to OpenAgent with Nonce: ${nonce}`;
 
-                    const signer = await provider.getSigner();
-                    const message = `Sign this message to prove you own this wallet and to log in to OpenAgent.\n\nNonce: ${nonce}`;
+                    console.log("--- Frontend Auth Process ---");
+                    console.log(`[AUTH_DEBUG_FRONT] address=[${address}] nonce=[${nonce}]`);
+                    console.log("Full Message: [" + message + "]");
+                    console.log("Signer Message:", message);
+
+                    const signer = await provider.getSigner(address);
+                    const signerAddress = await signer.getAddress();
+                    console.log("Verified Signer Address:", signerAddress);
+
                     const signature = await signer.signMessage(message);
+                    console.log("Generated Signature:", signature);
+
+                    // LOCAL VERIFICATION TEST
+                    const localRecovered = ethers.verifyMessage(message, signature);
+                    console.log("Local Recovered Address:", localRecovered.toLowerCase());
+                    console.log("Matches connected address?", localRecovered.toLowerCase() === address.toLowerCase());
 
                     const verifyRes = await fetch(`${API_URL}/api/auth/verify`, {
                         method: 'POST',
@@ -167,21 +198,24 @@ export const WalletProvider = ({ children }) => {
                     });
 
                     const verifyData = await verifyRes.json();
+                    console.log("Backend Response:", verifyData);
+
                     if (!verifyRes.ok || !verifyData.success) {
+                        console.error("Backend Auth Rejection:", verifyData);
                         throw new Error(verifyData.error || 'Verification failed');
                     }
 
                     localStorage.setItem('jwtToken', verifyData.token);
+                    const userData = verifyData.user || { address };
+                    setUser({ ...userData, authType: 'web3' });
+                    setAccount(address.toLowerCase());
+                    setIsConnected(true);
+
                 } catch (authError) {
-                    console.error("Authentication failed:", authError);
-                    alert("Authentication failed. Please try again.");
+                    console.error("CRITICAL AUTH ERROR:", authError);
                     setLoading(false);
                     return false;
                 }
-
-                setAccount(address);
-                setIsConnected(true);
-                setUser({ address, authType: 'web3' });
 
                 await syncIdentity(address);
 
@@ -210,8 +244,9 @@ export const WalletProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        let handleAccounts, handleChain;
         if (window.ethereum) {
-            window.ethereum.on('accountsChanged', (accounts) => {
+            handleAccounts = (accounts) => {
                 if (accounts.length > 0) {
                     const address = accounts[0].toLowerCase();
                     setAccount(address);
@@ -219,8 +254,17 @@ export const WalletProvider = ({ children }) => {
                 } else {
                     disconnectWallet();
                 }
-            });
-            window.ethereum.on('chainChanged', () => window.location.reload());
+            };
+
+            handleChain = () => {
+                // Soft reload logic to prevent infinite HMR loops in strict mode
+                console.log("Chain changed, re-syncing...");
+                if (account) syncIdentity(account);
+            };
+
+            window.ethereum.on('accountsChanged', handleAccounts);
+            window.ethereum.on('chainChanged', handleChain);
+
 
             const switchNetwork = async () => {
                 if (!window.ethereum) return;
@@ -250,23 +294,68 @@ export const WalletProvider = ({ children }) => {
             };
 
             const checkNetwork = async () => {
-                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                if (chainId !== '0x14a34') {
-                    console.warn(`Connected to unsupported chain: ${chainId}. Switching to Base Sepolia.`);
-                    await switchNetwork();
+                try {
+                    let chainId = window.ethereum.chainId;
+                    if (!chainId) {
+                        const tempProvider = new ethers.BrowserProvider(window.ethereum);
+                        const network = await tempProvider.getNetwork();
+                        chainId = '0x' + network.chainId.toString(16);
+                    }
+
+                    if (chainId !== '0x14a34') {
+                        console.warn(`Connected to unsupported chain: ${chainId}. Switching to Base Sepolia.`);
+                        await switchNetwork();
+                    }
+                } catch (e) {
+                    console.error("Network check suppressed due to provider incompatibility:", e);
                 }
             };
             checkNetwork();
 
-            // Auto connect if previously approved and not manually disconnected
+            // Auto resume session using JWT if possible
             const userDisconnected = localStorage.getItem('userDisconnected') === 'true';
-            if (!userDisconnected) {
-                window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+            const jwtToken = localStorage.getItem('jwtToken');
+
+            if (!userDisconnected && jwtToken) {
+                fetch(`${API_URL}/api/auth/resume`, {
+                    headers: { 'Authorization': `Bearer ${jwtToken}` }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && data.user) {
+                            const addr = data.user.address.toLowerCase();
+                            setAccount(addr);
+                            setUser({ ...data.user, authType: 'web3' });
+                            setUsername(data.user.username || null);
+                            setTrustScore(data.user.trustScore || 10);
+                            setIsConnected(true);
+                            // Make sure we have provider access to contracts
+                            const tempProvider = new ethers.BrowserProvider(window.ethereum);
+                            tempProvider.listAccounts().catch(() => { });
+                        } else {
+                            throw new Error("Invalid session token");
+                        }
+                    })
+                    .catch(err => {
+                        console.warn("Session resume failed, token expired:", err);
+                        localStorage.removeItem('jwtToken');
+                    });
+            } else if (!userDisconnected) {
+                // If they previously connected but have no token (e.g. legacy state)
+                const tempProvider = new ethers.BrowserProvider(window.ethereum);
+                tempProvider.listAccounts().then(accounts => {
                     if (accounts.length > 0) {
-                        connectWallet();
+                        // connectWallet(); // DEACTIVATED to stop popup loop on reload without token
                     }
-                });
+                }).catch(() => { });
             }
+
+            return () => {
+                if (window.ethereum) {
+                    window.ethereum.removeListener('accountsChanged', handleAccounts);
+                    window.ethereum.removeListener('chainChanged', handleChain);
+                }
+            };
         }
     }, []);
 
@@ -587,6 +676,50 @@ export const WalletProvider = ({ children }) => {
         }
     };
 
+    const stake = async (amount, lockDays) => {
+        if (!isConnected) return { success: false, error: 'Auth required' };
+        try {
+            const res = await fetch(`${API_URL}/api/users/stake`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
+                body: JSON.stringify({ username: username || account, amount, lockDays })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                await fetchBackendIdentity(account);
+                return { success: true };
+            }
+            return { success: false, error: data.error };
+        } catch (e) {
+            return { success: false, error: 'Connection failed' };
+        }
+    };
+
+    const unstake = async (amount) => {
+        if (!isConnected) return { success: false, error: 'Auth required' };
+        try {
+            const res = await fetch(`${API_URL}/api/users/unstake`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                },
+                body: JSON.stringify({ username: username || account, amount })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                await fetchBackendIdentity(account);
+                return { success: true };
+            }
+            return { success: false, error: data.error };
+        } catch (e) {
+            return { success: false, error: 'Connection failed' };
+        }
+    };
+
     const deleteAgent = async (id) => {
         if (!isConnected) return { success: false, error: 'Connect your wallet first' };
 
@@ -646,6 +779,8 @@ export const WalletProvider = ({ children }) => {
             auctions,
             loading,
             trustScore,
+            stake,
+            unstake,
             purchasedAgents,
             rawPurchases,
             rawSales,

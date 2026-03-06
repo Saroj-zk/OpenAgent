@@ -117,11 +117,11 @@ router.post('/', authenticateToken, cpUpload, async (req, res) => {
         const creatorScore = await trustEngine.computeUserTrust(owner);
         const creatorTier = trustEngine.getTrustTier(creatorScore);
 
-        if (creatorTier === 'RESTRICTED') {
-            return res.status(403).json({ error: "Account restricted due to trust score. Contact support." });
-        }
+        // Allow everyone to list, but RESTRICTED/EXPERIMENTAL go to PENDING_REVIEW
+        const agentStatus = (creatorTier === 'EXPERIMENTAL' || creatorTier === 'RESTRICTED')
+            ? 'PENDING_REVIEW'
+            : 'LISTED';
 
-        const agentStatus = creatorTier === 'EXPERIMENTAL' ? 'PENDING_REVIEW' : 'LISTED';
 
         const newAgentData = {
             id: id ? (typeof id === 'string' ? parseInt(id) : id) : Date.now(),
@@ -145,7 +145,7 @@ router.post('/', authenticateToken, cpUpload, async (req, res) => {
         };
 
         const newAgent = await Agent.create(newAgentData);
-        await trustEngine.updateTrustScore(owner, 1.0, 'agent_deploy');
+        await trustEngine.updateTrustScore(owner, 2.0, 'agent_deploy');
 
         // Auto-post to forum
         await ForumPost.create({

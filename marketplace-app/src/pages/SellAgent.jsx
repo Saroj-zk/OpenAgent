@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useWallet } from '../context/WalletContext';
 import {
-    Upload, DollarSign, Bot, FileText, CheckCircle,
+    Upload, DollarSign, Bot, FileText, CheckCircle2,
     AlertCircle, Sparkles, Terminal, Github, Cpu,
     Link as LinkIcon, Info, Coins, Image as ImageIcon,
     Globe, MessageCircle, FileCode, Layers, Zap, User,
@@ -15,16 +15,17 @@ const SellAgent = () => {
     const navigate = useNavigate();
 
     const getTrustTier = (score) => {
-        if (score >= 200) return 'VERIFIED';
-        if (score >= 100) return 'REVIEWED';
-        if (score >= 50) return 'EXPERIMENTAL';
+        if (score >= 150) return 'VERIFIED';
+        if (score >= 60) return 'REVIEWED';
+        if (score >= 30) return 'EXPERIMENTAL';
         return 'RESTRICTED';
     };
 
-    const tier = getTrustTier(trustScore || 10);
+    const tier = getTrustTier(trustScore || 0);
 
     let bondText = "";
-    if (tier === 'EXPERIMENTAL') bondText = "Your listing will go through review before going live. Bond required: 3x";
+    if (tier === 'RESTRICTED') bondText = "Welcome to the network. Your listing will be REVIEWED before being visible. Bond: 5x";
+    else if (tier === 'EXPERIMENTAL') bondText = "Your listing will go through review before going live. Bond required: 3x";
     else if (tier === 'REVIEWED') bondText = "Bond required: 2x";
     else if (tier === 'VERIFIED') bondText = "Bond required: 1x";
 
@@ -125,36 +126,23 @@ const SellAgent = () => {
         if (result.success) {
             navigate('/explore');
         } else {
-            setError(result.error || 'Deployment failed. Ensure your wallet is connected and try again.');
+            setError(result.error || 'Deployment failed. Ensure your wallet is connected and try authority profile status.');
         }
     };
 
     if (!isConnected) {
         return (
             <div className="sell-container animate-fade-in" style={{ textAlign: 'center', paddingTop: '200px' }}>
-                <div style={{ marginBottom: '40px', opacity: 0.1 }}>
-                    <Shield size={100} style={{ margin: '0 auto' }} color="white" />
+                <div style={{ marginBottom: '40px', opacity: 0.05 }}>
+                    <Shield size={120} style={{ margin: '0 auto' }} color="white" />
                 </div>
-                <h2 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>Connection Required</h2>
-                <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '40px', maxWidth: '400px', margin: '0 auto 40px' }}>Join the collective to deploy your autonomous legacy and start earning from your creations.</p>
-                <button className="deploy-btn" style={{ width: '220px' }} onClick={() => navigate('/identity')}>Connect Identity</button>
+                <h2 style={{ fontSize: '38px', fontWeight: '950', marginBottom: '16px', color: '#fff', letterSpacing: '-0.04em' }}>Connection Protocol Required</h2>
+                <p style={{ color: '#666', marginBottom: '48px', maxWidth: '420px', margin: '0 auto 48px', fontSize: '18px', lineHeight: 1.6 }}>Secure your identity to deploy autonomous assets to the global verified registry.</p>
+                <button className="deploy-btn" style={{ width: '280px', height: '64px', borderRadius: '20px', background: '#6366f1', color: '#fff' }} onClick={() => navigate('/identity')}>Initialize Connection</button>
             </div>
         );
     }
 
-    if (tier === 'RESTRICTED') {
-        return (
-            <div className="sell-container animate-fade-in" style={{ textAlign: 'center', paddingTop: '200px' }}>
-                <div style={{ marginBottom: '40px', opacity: 0.1 }}>
-                    <AlertCircle size={100} style={{ margin: '0 auto' }} color="red" />
-                </div>
-                <h2 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '16px', color: '#ff4d4d' }}>Access Restricted</h2>
-                <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: '40px', maxWidth: '400px', margin: '0 auto 40px' }}>
-                    Account restricted due to trust score. Contact support.
-                </p>
-            </div>
-        );
-    }
 
     return (
         <div className="sell-container animate-fade-in-up">
@@ -332,7 +320,7 @@ const SellAgent = () => {
                             <input type="file" accept=".zip,.rar,.tar,.tar.gz" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 10 }} onChange={handleCodeChange} />
                             {agentCode ? (
                                 <div style={{ color: '#4dff88', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                    <CheckCircle size={24} />
+                                    <CheckCircle2 size={24} />
                                     <span>{agentCode.name}</span>
                                 </div>
                             ) : (
@@ -409,8 +397,17 @@ const SellAgent = () => {
                     </div>
                 </section>
 
-                <button type="submit" className="deploy-btn" disabled={submitting}>
-                    {submitting ? 'DEPLOYING TO REGISTRY...' : 'DEPLOY AGENT'}
+                <button type="submit" className="deploy-btn" disabled={submitting} style={{
+                    background: '#6366f1',
+                    color: '#fff',
+                    height: '72px',
+                    borderRadius: '24px',
+                    fontSize: '16px',
+                    fontWeight: '950',
+                    letterSpacing: '0.1em',
+                    boxShadow: '0 20px 40px rgba(99, 102, 241, 0.2)'
+                }}>
+                    {submitting ? 'EXECUTING_DEPLOYMENT_SEQUENCE...' : 'FINALIZE & DEPLOY ASSET'}
                 </button>
 
                 {error && (

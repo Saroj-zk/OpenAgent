@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, CheckCircle, XCircle, Search, ExternalLink } from 'lucide-react';
+import { ShieldAlert, CheckCircle2, XCircle, Search, ExternalLink } from 'lucide-react';
 import { useWallet } from '../context/WalletContext';
 import { Link } from 'react-router-dom';
 import './AdminDisputes.css';
@@ -126,7 +126,7 @@ const AdminDisputes = () => {
                                             disabled={actionLoading === dispute._id}
                                             title="Refund Buyer, Slash Seller"
                                         >
-                                            <CheckCircle size={16} />
+                                            <CheckCircle2 size={16} />
                                             APPROVE (BUYER WINS)
                                         </button>
                                         <button

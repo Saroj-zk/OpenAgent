@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
-const { verifyMessage } = require('ethers');
+const ethers = require('ethers');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const TrustEngine = require('../trust-engine/TrustEngine');
@@ -13,8 +13,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'openagent_secure_secret_fallback_1
 router.get('/nonce', (req, res) => {
     const { address } = req.query;
     if (!address) return res.status(400).json({ error: 'Address required' });
+
+    const formattedAddress = address.toLowerCase();
     const nonce = crypto.randomBytes(16).toString('hex');
-    nonces[address.toLowerCase()] = nonce;
+
+    // Support multiple active nonces to handle React StrictMode dual-mounts
+    if (!nonces[formattedAddress]) nonces[formattedAddress] = [];
+    nonces[formattedAddress].push(nonce);
+
+    // Keep only the last 3 nonces to prevent memory bloat
+    if (nonces[formattedAddress].length > 3) nonces[formattedAddress].shift();
+
     res.json({ nonce });
 });
 
@@ -23,15 +32,31 @@ router.post('/verify', async (req, res) => {
     if (!address || !signature) return res.status(400).json({ error: 'Missing data' });
 
     const formattedAddress = address.toLowerCase();
-    const nonce = nonces[formattedAddress];
-    if (!nonce) return res.status(400).json({ error: 'Nonce not found or expired' });
+    const activeNonces = nonces[formattedAddress] || [];
+
+    if (activeNonces.length === 0) {
+        return res.status(400).json({ error: 'Nonce not found or expired. Please initialize connection again.' });
+    }
 
     try {
-        const message = `Sign this message to prove you own this wallet and to log in to OpenAgent.\n\nNonce: ${nonce}`;
-        const recoveredAddress = verifyMessage(message, signature);
+        let validNonce = null;
+        console.log(`--- Signature Verification for ${formattedAddress} ---`);
+        console.log(`Checking against ${activeNonces.length} recent nonces.`);
 
-        if (recoveredAddress.toLowerCase() === formattedAddress) {
-            delete nonces[formattedAddress];
+        // Check if signature matches any of the recently issued nonces for this address
+        for (const nonce of activeNonces) {
+            const message = `Login to OpenAgent with Nonce: ${nonce}`;
+            const recoveredAddress = ethers.verifyMessage(message, signature);
+
+            if (recoveredAddress.toLowerCase() === formattedAddress) {
+                validNonce = nonce;
+                break;
+            }
+        }
+
+        if (validNonce) {
+            console.log("✅ Identity Match! Authorizing access.");
+            nonces[formattedAddress] = []; // Clear nonces after successful auth
 
             let user = await User.findOne({ address: formattedAddress });
             if (!user) {
@@ -50,7 +75,6 @@ router.post('/verify', async (req, res) => {
             const currentScore = await trustEngine.computeUserTrust(formattedAddress);
             console.log(`Trust score for ${formattedAddress} on login: ${currentScore}`);
 
-
             const token = jwt.sign(
                 { address: formattedAddress, username: user.username },
                 JWT_SECRET,
@@ -59,11 +83,29 @@ router.post('/verify', async (req, res) => {
 
             res.json({ success: true, token, user });
         } else {
-            res.status(401).json({ error: 'Signature verification failed' });
+            console.log("❌ Mismatch!");
+            console.log("- Recovered:", recoveredAddress.toLowerCase());
+            console.log("- Expected:", formattedAddress);
+            res.status(401).json({ error: 'Signature verification failed', recovered: recoveredAddress, expected: formattedAddress, msg: message });
         }
     } catch (error) {
         console.error("Signature verify error:", error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+});
+
+const authenticateToken = require('../middleware/authMiddleware');
+
+router.get('/resume', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ address: req.user.address.toLowerCase() });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json({ success: true, user });
+    } catch (err) {
+        console.error("Resume Session Error:", err);
+        res.status(500).json({ error: 'Failed to resume session' });
     }
 });
 

@@ -21,7 +21,7 @@
   --font-heading: 'Manrope', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --container-width: 1400px;
+  --container-width: 100%;
 }
 
 * {

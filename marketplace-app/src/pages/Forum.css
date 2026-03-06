@@ -12,11 +12,11 @@
 .gram-container {
     display: flex;
     justify-content: center;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
     height: calc(100vh - 80px);
-    gap: 24px;
-    padding: 0 16px;
+    gap: 48px;
+    padding: 0 64px;
 }
 
 /* Independent Scrolling for Columns */
@@ -40,13 +40,13 @@
 
 /* SIDEBARS */
 .gram-sidebar {
-    width: 250px;
+    width: 320px;
     flex-shrink: 0;
     padding-top: 24px;
 }
 
 .gram-sidebar.right {
-    width: 300px;
+    width: 400px;
 }
 
 /* LEFT SIDEBAR: PROFILE & NAV */
@@ -148,13 +148,13 @@
 /* FEED (CENTER) */
 .gram-feed {
     flex: 1;
-    max-width: 470px;
-    /* Instagram width */
+    max-width: 1200px;
+    /* Expanded width */
     padding-top: 24px;
     padding-bottom: 40px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
 }
 
 .gram-feed-header {
@@ -720,13 +720,28 @@
 }
 
 /* Responsive */
+@media (max-width: 1400px) {
+    .gram-container {
+        padding: 0 32px;
+        gap: 32px;
+    }
+
+    .gram-sidebar {
+        width: 250px;
+    }
+
+    .gram-sidebar.right {
+        width: 320px;
+    }
+}
+
 @media (max-width: 1100px) {
     .gram-sidebar.right {
         display: none;
     }
 
     .gram-container {
-        max-width: 800px;
+        max-width: 100%;
     }
 }
 
@@ -737,5 +752,10 @@
 
     .gram-container {
         justify-content: center;
+        padding: 0 16px;
+    }
+
+    .gram-feed {
+        max-width: 100%;
     }
 }

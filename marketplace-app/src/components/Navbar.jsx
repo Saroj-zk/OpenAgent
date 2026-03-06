@@ -41,7 +41,10 @@ const Navbar = () => {
 
                 <div className="nav-links">
                     <Link to="/explore" className={`nav-link ${location.pathname === '/explore' ? 'active' : ''}`}>Marketplace</Link>
-                    <Link to="/auctions" className={`nav-link ${location.pathname === '/auctions' ? 'active' : ''}`}>Auctions</Link>
+                    <div className="nav-link disabled" style={{ opacity: 0.3, cursor: 'not-allowed', position: 'relative' }}>
+                        Auctions
+                        <span style={{ fontSize: '7px', position: 'absolute', top: '-4px', right: '-12px', background: '#6366f1', color: '#fff', padding: '2px 4px', borderRadius: '4px', fontWeight: '900' }}>SOON</span>
+                    </div>
                     <Link to="/sell" className={`nav-link ${location.pathname === '/sell' ? 'active' : ''}`}>Deploy</Link>
                     <Link to="/forum" className={`nav-link ${location.pathname === '/forum' ? 'active' : ''}`}>Forum</Link>
                 </div>

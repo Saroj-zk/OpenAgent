@@ -25,9 +25,9 @@ class TrustEngine {
     }
 
     getTrustTier(score) {
-        if (score >= 200) return 'VERIFIED';
-        if (score >= 100) return 'REVIEWED';
-        if (score >= 50) return 'EXPERIMENTAL';
+        if (score >= 150) return 'VERIFIED';
+        if (score >= 60) return 'REVIEWED';
+        if (score >= 30) return 'EXPERIMENTAL';
         return 'RESTRICTED';
     }
 
@@ -73,7 +73,7 @@ class TrustEngine {
 
         if (!user) return 10;
 
-        let h = user.hidden_rating || 10;
+        let h = user.hidden_rating || 0.5;
         const visibleNow = this.mappingHiddenToVisible(h);
 
         // 1. Contribution Boost

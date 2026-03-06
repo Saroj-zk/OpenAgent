@@ -1,23 +1,21 @@
 .compact-agent-card {
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.015);
+    background: #080808;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
+    border-radius: 28px;
     overflow: hidden;
     text-decoration: none;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     height: 100%;
     position: relative;
 }
 
 .compact-agent-card:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-6px);
-    box-shadow:
-        0 20px 40px -10px rgba(0, 0, 0, 0.6),
-        0 0 20px rgba(0, 255, 136, 0.05);
+    background: #0a0a0a;
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
 }
 
 .compact-image-area {
@@ -25,72 +23,59 @@
     aspect-ratio: 1 / 1;
     position: relative;
     overflow: hidden;
-    background: #000;
+    background: #111;
 }
 
-.compact-image-area::after {
-    content: '';
+.compact-overlay-icon {
     position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.5) 100%);
-}
-
-.compact-status-overlay {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    z-index: 2;
+    top: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
     display: flex;
-    gap: 6px;
-}
-
-.compact-status-tag {
-    font-size: 8px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 3px 8px;
-    border-radius: 6px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.compact-status-tag.recent {
-    background: rgba(0, 255, 136, 0.1);
-    color: var(--brand-primary);
-    border: 1px solid rgba(0, 255, 136, 0.2);
-}
-
-.compact-status-tag.liked {
-    background: rgba(255, 184, 0, 0.1);
-    color: var(--brand-warm);
-    border: 1px solid rgba(255, 184, 0, 0.2);
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 2;
 }
 
 .compact-details-area {
-    padding: 16px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    gap: 10px;
+}
+
+.compact-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    width: fit-content;
+    margin-bottom: 20px;
 }
 
 .compact-agent-name {
-    font-size: 15px;
-    font-weight: 800;
+    font-size: 16px;
+    font-weight: 900;
     color: #fff;
-    margin: 0;
+    margin: 0 0 10px 0;
     letter-spacing: -0.02em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .compact-agent-desc {
     font-size: 11px;
-    color: var(--text-muted);
-    margin: 0;
-    line-height: 1.5;
+    color: #666;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -99,33 +84,37 @@
     font-weight: 500;
 }
 
-.compact-footer-row {
+.compact-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.03);
     margin-top: auto;
+    margin-bottom: 20px;
+}
+
+.compact-footer-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .compact-agent-price {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 900;
     color: #fff;
     font-family: var(--font-mono);
 }
 
-.zap-icon-mini {
-    color: var(--brand-primary);
+.zap-icon-green {
+    color: #4ade80;
 }
 
 .compact-role-badge {
     font-size: 9px;
-    font-weight: 950;
-    color: rgba(255, 255, 255, 0.2);
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.15);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
 }

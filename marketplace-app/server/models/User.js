@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     stake_lock_days_remaining: { type: Number, default: 0 },
     contribution_points_lifetime: { type: Number, default: 0 },
     contribution_points_rolling_30d: { type: Number, default: 0 },
-    hidden_rating: { type: Number, default: 10 },
+    hidden_rating: { type: Number, default: 0.5 },
     daily_posts_date: String,
     daily_posts_count: { type: Number, default: 0 },
     trustScore: { type: Number, default: 10 },

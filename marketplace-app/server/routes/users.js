@@ -8,35 +8,60 @@ const trustEngine = require('../utils/trustEngine');
 // STAKING
 router.post('/stake', authenticateToken, async (req, res) => {
     const { username, amount, lockDays } = req.body;
+    const identifier = username?.toLowerCase();
     try {
-        const user = await User.findOne({ username });
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        const user = await User.findOne({
+            $or: [{ username: identifier }, { address: identifier }]
+        });
+        if (!user) return res.status(404).json({ error: 'User profile not found in database' });
 
         user.staked_amount = (user.staked_amount || 0) + parseFloat(amount);
         user.stake_started_at = new Date();
         user.stake_lock_days_remaining = lockDays || 0;
 
         await user.save();
-        res.json({ success: true, staked_amount: user.staked_amount });
+
+        // Recalculate trust score immediately after staking
+        const newScore = await trustEngine.computeUserTrust(user.username || user.address);
+
+        res.json({
+            success: true,
+            staked_amount: user.staked_amount,
+            newTrustScore: newScore
+        });
     } catch (err) {
+        console.error("Staking Error:", err);
         res.status(500).json({ error: 'Staking failed' });
     }
 });
 
 router.post('/unstake', authenticateToken, async (req, res) => {
     const { username, amount } = req.body;
+    const identifier = username?.toLowerCase();
     try {
-        const user = await User.findOne({ username });
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        const user = await User.findOne({
+            $or: [{ username: identifier }, { address: identifier }]
+        });
+        if (!user) return res.status(404).json({ error: 'User profile not found in database' });
 
         if ((user.staked_amount || 0) < amount) return res.status(400).json({ error: 'Insufficient stake' });
 
         user.staked_amount -= amount;
+        // The "Withdrawal Slash" 8% penalty to hidden rating
         user.hidden_rating = (user.hidden_rating || 10) * 0.92;
 
         await user.save();
-        res.json({ success: true, staked_amount: user.staked_amount });
+
+        // Recalculate trust score immediately after unstaking
+        const newScore = await trustEngine.computeUserTrust(user.username || user.address);
+
+        res.json({
+            success: true,
+            staked_amount: user.staked_amount,
+            newTrustScore: newScore
+        });
     } catch (err) {
+        console.error("Unstaking Error:", err);
         res.status(500).json({ error: 'Unstaking failed' });
     }
 });
