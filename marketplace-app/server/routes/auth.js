@@ -45,7 +45,7 @@ router.post('/verify', async (req, res) => {
 
         // Check if signature matches any of the recently issued nonces for this address
         for (const nonce of activeNonces) {
-            const message = `Login to OpenAgent with Nonce: ${nonce}`;
+            const message = `Login to AgentBase with Nonce: ${nonce}`;
             const recoveredAddress = ethers.verifyMessage(message, signature);
 
             if (recoveredAddress.toLowerCase() === formattedAddress) {

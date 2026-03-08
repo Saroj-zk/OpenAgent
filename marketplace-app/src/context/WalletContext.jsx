@@ -172,7 +172,7 @@ export const WalletProvider = ({ children }) => {
                     });
                     const nonceData = await nonceRes.json();
                     const nonce = nonceData.nonce;
-                    const message = `Login to OpenAgent with Nonce: ${nonce}`;
+                    const message = `Login to AgentBase with Nonce: ${nonce}`;
 
                     console.log("--- Frontend Auth Process ---");
                     console.log(`[AUTH_DEBUG_FRONT] address=[${address}] nonce=[${nonce}]`);

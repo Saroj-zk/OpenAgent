@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentBase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #07080a;
+            --fg: #efefed;
+            --dim: rgba(239, 239, 237, 0.3);
+            --border: rgba(239, 239, 237, 0.09);
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Syne', sans-serif;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════════════════════════════
+       SCENE SYSTEM
+    ══════════════════════════════════ */
+        .scene {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.65s ease;
+        }
+
+        .scene.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ══════════════════════════════════
+       S1 — TITLE
+    ══════════════════════════════════ */
+        #s1 {
+            flex-direction: column;
+            align-items: center;
+            gap: 22px;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .s1-eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+            color: rgba(239, 239, 237, 0.2);
+            opacity: 0;
+            transition: opacity 0.7s ease;
+        }
+
+        .s1-eyebrow.in {
+            opacity: 1;
+        }
+
+        .brand {
+            font-size: clamp(56px, 12vw, 130px);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .brand.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .brand-agent {
+            color: var(--fg);
+        }
+
+        .brand-base {
+            -webkit-text-stroke: 1.5px rgba(239, 239, 237, 0.42);
+            color: transparent;
+        }
+
+        .brand-tagline {
+            font-size: clamp(15px, 2vw, 20px);
+            font-weight: 400;
+            color: rgba(239, 239, 237, 0.32);
+            letter-spacing: -0.01em;
+            max-width: 520px;
+            line-height: 1.55;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .brand-tagline.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .brand-pills {
+            display: flex;
+            gap: 9px;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            transition: opacity 0.7s ease;
+        }
+
+        .brand-pills.in {
+            opacity: 1;
+        }
+
+        .pill {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(239, 239, 237, 0.26);
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            border-radius: 2px;
+        }
+
+        /* ══════════════════════════════════
+       S2 — ARCHITECTURE
+    ══════════════════════════════════ */
+        #s2 {
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 0;
+        }
+
+        .arch-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(239, 239, 237, 0.2);
+            margin-bottom: 26px;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        .arch-label.in {
+            opacity: 1;
+        }
+
+        .arch-diagram {
+            width: min(860px, 94vw);
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.8s ease 0.1s, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+        }
+
+        .arch-diagram.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .d-label-main {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            fill: rgba(239, 239, 237, 0.88);
+            letter-spacing: -0.01em;
+        }
+
+        .d-label-sub {
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            font-size: 8.5px;
+            fill: rgba(239, 239, 237, 0.32);
+            letter-spacing: 0.05em;
+        }
+
+        .d-label-tiny {
+            font-family: 'DM Mono', monospace;
+            font-size: 7.5px;
+            fill: rgba(239, 239, 237, 0.22);
+            letter-spacing: 0.08em;
+        }
+
+        .d-section-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 8px;
+            fill: rgba(239, 239, 237, 0.18);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        /* ══════════════════════════════════
+       S3 — CTA + FEATURE BUTTONS
+    ══════════════════════════════════ */
+        #s3 {
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            padding: 32px 24px;
+        }
+
+        /* The two toggle buttons */
+        .feat-toggles {
+            display: flex;
+            gap: 12px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s;
+        }
+
+        .feat-toggles.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feat-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 26px;
+            border: 1px solid rgba(239, 239, 237, 0.12);
+            border-radius: 3px;
+            background: transparent;
+            color: rgba(239, 239, 237, 0.5);
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: border-color 0.25s, color 0.25s, background 0.25s;
+        }
+
+        .feat-toggle-btn:hover {
+            border-color: rgba(239, 239, 237, 0.3);
+            color: rgba(239, 239, 237, 0.8);
+            background: rgba(239, 239, 237, 0.03);
+        }
+
+        .feat-toggle-btn.open {
+            border-color: rgba(239, 239, 237, 0.35);
+            color: var(--fg);
+            background: rgba(239, 239, 237, 0.04);
+        }
+
+        .feat-toggle-icon {
+            font-size: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .feat-toggle-btn.open .feat-toggle-icon {
+            transform: rotate(45deg);
+        }
+
+        /* Expandable panel */
+        .feat-panel-wrap {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 50;
+            background: rgba(7, 8, 10, 0.92);
+            backdrop-filter: blur(6px);
+        }
+
+        .feat-panel-wrap.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .feat-panel {
+            width: min(860px, 92vw);
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(239, 239, 237, 0.1);
+            background: #0c0d10;
+            border-radius: 4px;
+            transform: translateY(16px) scale(0.98);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(239, 239, 237, 0.1) transparent;
+        }
+
+        .feat-panel-wrap.open .feat-panel {
+            transform: translateY(0) scale(1);
+        }
+
+        .feat-panel-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 26px;
+            border-bottom: 1px solid rgba(239, 239, 237, 0.07);
+            position: sticky;
+            top: 0;
+            background: #0c0d10;
+            z-index: 2;
+        }
+
+        .feat-panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .feat-panel-close {
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(239, 239, 237, 0.1);
+            border-radius: 50%;
+            background: transparent;
+            color: rgba(239, 239, 237, 0.4);
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s, color 0.2s;
+            font-family: sans-serif;
+        }
+
+        .feat-panel-close:hover {
+            border-color: var(--fg);
+            color: var(--fg);
+        }
+
+        .feat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: rgba(239, 239, 237, 0.06);
+        }
+
+        .feat-grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .feat-card {
+            background: #0c0d10;
+            padding: 24px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            transition: background 0.2s;
+        }
+
+        .feat-card:hover {
+            background: rgba(239, 239, 237, 0.025);
+        }
+
+        .feat-card-icon {
+            font-size: 17px;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+
+        .feat-card-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 12.5px;
+            letter-spacing: -0.01em;
+            color: rgba(239, 239, 237, 0.88);
+        }
+
+        .feat-card-desc {
+            font-family: 'DM Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 300;
+            color: rgba(239, 239, 237, 0.34);
+            line-height: 1.65;
+            letter-spacing: 0.01em;
+        }
+
+        .feat-card-tag {
+            display: inline-block;
+            margin-top: 5px;
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(239, 239, 237, 0.18);
+            border: 1px solid rgba(239, 239, 237, 0.07);
+            padding: 3px 8px;
+            border-radius: 2px;
+            width: fit-content;
+        }
+
+        /* ══════════════════════════════════
+       S4 — CTA
+    ══════════════════════════════════ */
+        #s4 {
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .cta-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: rgba(239, 239, 237, 0.24);
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        .cta-label.in {
+            opacity: 1;
+        }
+
+        .cta-headline {
+            font-size: clamp(42px, 8.5vw, 96px);
+            font-weight: 800;
+            letter-spacing: -0.045em;
+            line-height: 0.9;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .cta-headline.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .demo-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px 34px;
+            border: 1px solid rgba(239, 239, 237, 0.15);
+            border-radius: 2px;
+            background: transparent;
+            color: var(--fg);
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s,
+                background 0.22s, border-color 0.22s;
+        }
+
+        .demo-btn.in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .demo-btn:hover {
+            background: rgba(239, 239, 237, 0.04);
+            border-color: rgba(239, 239, 237, 0.4);
+        }
+
+        .btn-circle {
+            width: 22px;
+            height: 22px;
+            border: 1px solid rgba(239, 239, 237, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: transform 0.28s ease;
+        }
+
+        .demo-btn:hover .btn-circle {
+            transform: translateX(4px);
+        }
+
+        /* ══════════════════════════════════
+       S5 — VIDEO
+    ══════════════════════════════════ */
+        #s5 {
+            flex-direction: column;
+            background: #000;
+            padding: 0;
+        }
+
+        .video-top {
+            position: absolute;
+            top: 28px;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-top-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(239, 239, 237, 0.18);
+        }
+
+        .video-close {
+            position: absolute;
+            right: 32px;
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(239, 239, 237, 0.1);
+            border-radius: 50%;
+            background: transparent;
+            color: rgba(239, 239, 237, 0.32);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s, color 0.2s;
+            font-family: sans-serif;
+        }
+
+        .video-close:hover {
+            border-color: var(--fg);
+            color: var(--fg);
+        }
+
+        .video-frame {
+            width: min(900px, 90vw);
+            aspect-ratio: 16/9;
+            background: #0a0a0a;
+            border: 1px solid rgba(239, 239, 237, 0.06);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.94) translateY(14px);
+            transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .video-frame.in {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .video-frame video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .vid-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .vid-play {
+            width: 54px;
+            height: 54px;
+            border: 1px solid rgba(239, 239, 237, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            color: rgba(239, 239, 237, 0.22);
+        }
+
+        .vid-note {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            color: rgba(239, 239, 237, 0.12);
+            letter-spacing: 0.1em;
+        }
+
+        /* ══════════════════════════════════
+       DOTS + SKIP
+    ══════════════════════════════════ */
+        .dots {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 7px;
+            z-index: 300;
+            transition: opacity 0.4s;
+        }
+
+        .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(239, 239, 237, 0.14);
+            transition: background 0.3s, transform 0.3s;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: var(--fg);
+            transform: scale(1.6);
+        }
+
+        .skip {
+            position: fixed;
+            bottom: 25px;
+            right: 32px;
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(239, 239, 237, 0.14);
+            cursor: pointer;
+            z-index: 300;
+            border: none;
+            background: none;
+            transition: color 0.2s, opacity 0.4s;
+        }
+
+        .skip:hover {
+            color: var(--dim);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══ S1: TITLE ══ -->
+    <div class="scene active" id="s1">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center;padding:24px;">
+            <div class="s1-eyebrow" id="s1eye">Base Batch 3 &nbsp;·&nbsp; Developer Grant</div>
+            <div class="brand" id="brandWord">
+                <span class="brand-agent">Agent</span><span class="brand-base">Base</span>
+            </div>
+            <div class="brand-tagline" id="brandTag">
+                The decentralized marketplace for AI Agents — blockchain-enforced ownership, on-chain trust, zero
+                intermediaries.
+            </div>
+            <div class="brand-pills" id="brandPills">
+                <span class="pill">On-Chain Trust</span>
+                <span class="pill">Smart Contracts</span>
+                <span class="pill">Escrow &amp; Arbitration</span>
+                <span class="pill">Base L2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ S2: ARCHITECTURE ══ -->
+    <div class="scene" id="s2">
+        <div style="display:flex;flex-direction:column;align-items:center;width:100%;">
+            <div class="arch-label" id="archLabel">System Architecture</div>
+            <div class="arch-diagram" id="archDiagram">
+                <svg viewBox="0 0 860 430" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;"
+                    font-family="'Syne',sans-serif">
+                    <defs>
+                        <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L6,3 z" fill="rgba(239,239,237,0.2)" />
+                        </marker>
+                        <marker id="arr2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L6,3 z" fill="rgba(239,239,237,0.35)" />
+                        </marker>
+                    </defs>
+                    <text x="18" y="56" class="d-section-label">Frontend</text>
+                    <text x="18" y="186" class="d-section-label">Backend</text>
+                    <text x="18" y="316" class="d-section-label">Blockchain</text>
+                    <line x1="18" y1="62" x2="842" y2="62" stroke="rgba(239,239,237,0.05)" stroke-width="1" />
+                    <line x1="18" y1="192" x2="842" y2="192" stroke="rgba(239,239,237,0.05)" stroke-width="1" />
+                    <line x1="18" y1="322" x2="842" y2="322" stroke="rgba(239,239,237,0.05)" stroke-width="1" />
+                    <!-- FRONTEND -->
+                    <rect x="90" y="72" width="148" height="96" rx="3" fill="rgba(239,239,237,0.05)"
+                        stroke="rgba(239,239,237,0.16)" stroke-width="1" />
+                    <text x="164" y="106" text-anchor="middle" class="d-label-main">Marketplace</text>
+                    <text x="164" y="120" text-anchor="middle" class="d-label-sub">React 19 + Vite</text>
+                    <text x="164" y="134" text-anchor="middle" class="d-label-tiny">Framer Motion · Radix UI</text>
+                    <text x="164" y="148" text-anchor="middle" class="d-label-tiny">Tailwind CSS 4</text>
+                    <rect x="356" y="72" width="148" height="96" rx="3" fill="rgba(239,239,237,0.03)"
+                        stroke="rgba(239,239,237,0.1)" stroke-width="1" />
+                    <text x="430" y="106" text-anchor="middle" class="d-label-main">Admin Portal</text>
+                    <text x="430" y="120" text-anchor="middle" class="d-label-sub">Management UI</text>
+                    <text x="430" y="134" text-anchor="middle" class="d-label-tiny">Analytics · Moderation</text>
+                    <text x="430" y="148" text-anchor="middle" class="d-label-tiny">Platform controls</text>
+                    <rect x="622" y="72" width="148" height="96" rx="3" fill="rgba(239,239,237,0.03)"
+                        stroke="rgba(239,239,237,0.1)" stroke-width="1" />
+                    <text x="696" y="106" text-anchor="middle" class="d-label-main">Wallet Auth</text>
+                    <text x="696" y="120" text-anchor="middle" class="d-label-sub">Multi-Nonce System</text>
+                    <text x="696" y="134" text-anchor="middle" class="d-label-tiny">Ethers.js v6</text>
+                    <text x="696" y="148" text-anchor="middle" class="d-label-tiny">No passwords · Sign-in free</text>
+                    <!-- BACKEND -->
+                    <rect x="90" y="202" width="148" height="90" rx="3" fill="rgba(239,239,237,0.04)"
+                        stroke="rgba(239,239,237,0.13)" stroke-width="1" />
+                    <text x="164" y="233" text-anchor="middle" class="d-label-main">Node / Express</text>
+                    <text x="164" y="248" text-anchor="middle" class="d-label-sub">API Server</text>
+                    <text x="164" y="262" text-anchor="middle" class="d-label-tiny">Auth middleware · REST</text>
+                    <text x="164" y="276" text-anchor="middle" class="d-label-tiny">Rate limiting · CORS</text>
+                    <rect x="356" y="202" width="148" height="90" rx="3" fill="rgba(239,239,237,0.07)"
+                        stroke="rgba(239,239,237,0.22)" stroke-width="1" />
+                    <text x="430" y="233" text-anchor="middle" class="d-label-main">Trust Engine</text>
+                    <text x="430" y="248" text-anchor="middle" class="d-label-sub">ChainSync</text>
+                    <text x="430" y="262" text-anchor="middle" class="d-label-tiny">On-chain score calculator</text>
+                    <text x="430" y="276" text-anchor="middle" class="d-label-tiny">Performance · Reviews</text>
+                    <rect x="622" y="202" width="148" height="90" rx="3" fill="rgba(239,239,237,0.03)"
+                        stroke="rgba(239,239,237,0.1)" stroke-width="1" />
+                    <text x="696" y="233" text-anchor="middle" class="d-label-main">Indexer</text>
+                    <text x="696" y="248" text-anchor="middle" class="d-label-sub">startIndexer()</text>
+                    <text x="696" y="262" text-anchor="middle" class="d-label-tiny">Tracks on-chain events</text>
+                    <text x="696" y="276" text-anchor="middle" class="d-label-tiny">Keeps UI in sync</text>
+                    <!-- BLOCKCHAIN -->
+                    <rect x="52" y="332" width="160" height="82" rx="3" fill="rgba(239,239,237,0.04)"
+                        stroke="rgba(239,239,237,0.11)" stroke-width="1" />
+                    <text x="132" y="360" text-anchor="middle" class="d-label-main">OpenAgentRegistry</text>
+                    <text x="132" y="375" text-anchor="middle" class="d-label-sub">.sol</text>
+                    <text x="132" y="390" text-anchor="middle" class="d-label-tiny">List · Buy · Ownership</text>
+                    <text x="132" y="402" text-anchor="middle" class="d-label-tiny">Tamper-proof history</text>
+                    <rect x="240" y="332" width="160" height="82" rx="3" fill="rgba(239,239,237,0.04)"
+                        stroke="rgba(239,239,237,0.11)" stroke-width="1" />
+                    <text x="320" y="360" text-anchor="middle" class="d-label-main">AgentSubscriptions</text>
+                    <text x="320" y="375" text-anchor="middle" class="d-label-sub">.sol</text>
+                    <text x="320" y="390" text-anchor="middle" class="d-label-tiny">Recurring billing</text>
+                    <text x="320" y="402" text-anchor="middle" class="d-label-tiny">No payment processors</text>
+                    <rect x="428" y="332" width="160" height="82" rx="3" fill="rgba(239,239,237,0.04)"
+                        stroke="rgba(239,239,237,0.11)" stroke-width="1" />
+                    <text x="508" y="360" text-anchor="middle" class="d-label-main">Escrow</text>
+                    <text x="508" y="375" text-anchor="middle" class="d-label-sub">.sol</text>
+                    <text x="508" y="390" text-anchor="middle" class="d-label-tiny">Secure fund management</text>
+                    <text x="508" y="402" text-anchor="middle" class="d-label-tiny">Dispute arbitration</text>
+                    <rect x="616" y="332" width="172" height="82" rx="3" fill="rgba(239,239,237,0.06)"
+                        stroke="rgba(239,239,237,0.2)" stroke-width="1" />
+                    <text x="702" y="363" text-anchor="middle" class="d-label-main">Base L2</text>
+                    <text x="702" y="378" text-anchor="middle" class="d-label-sub">EVM · Solidity</text>
+                    <text x="702" y="393" text-anchor="middle" class="d-label-tiny">Low fees · Fast finality</text>
+                    <text x="702" y="407" text-anchor="middle" class="d-label-tiny">Ethereum-compatible</text>
+                    <!-- CONNECTORS -->
+                    <line x1="164" y1="168" x2="164" y2="202" stroke="rgba(239,239,237,0.14)" stroke-width="1"
+                        marker-end="url(#arr)" />
+                    <line x1="238" y1="120" x2="356" y2="120" stroke="rgba(239,239,237,0.09)" stroke-width="1"
+                        stroke-dasharray="3 4" marker-end="url(#arr)" />
+                    <line x1="504" y1="247" x2="622" y2="247" stroke="rgba(239,239,237,0.12)" stroke-width="1"
+                        marker-end="url(#arr)" />
+                    <line x1="356" y1="168" x2="238" y2="202" stroke="rgba(239,239,237,0.09)" stroke-width="1"
+                        stroke-dasharray="3 4" marker-end="url(#arr)" />
+                    <line x1="696" y1="168" x2="430" y2="202" stroke="rgba(239,239,237,0.09)" stroke-width="1"
+                        stroke-dasharray="3 4" marker-end="url(#arr)" />
+                    <line x1="140" y1="292" x2="132" y2="332" stroke="rgba(239,239,237,0.14)" stroke-width="1"
+                        marker-end="url(#arr)" />
+                    <line x1="188" y1="292" x2="300" y2="332" stroke="rgba(239,239,237,0.09)" stroke-width="1"
+                        stroke-dasharray="3 4" marker-end="url(#arr)" />
+                    <line x1="390" y1="292" x2="200" y2="332" stroke="rgba(239,239,237,0.09)" stroke-width="1"
+                        stroke-dasharray="3 4" marker-end="url(#arr)" />
+                    <line x1="470" y1="292" x2="508" y2="332" stroke="rgba(239,239,237,0.14)" stroke-width="1"
+                        marker-end="url(#arr)" />
+                    <line x1="696" y1="292" x2="702" y2="332" stroke="rgba(239,239,237,0.18)" stroke-width="1"
+                        marker-end="url(#arr2)" />
+                    <line x1="648" y1="292" x2="200" y2="332" stroke="rgba(239,239,237,0.06)" stroke-width="1"
+                        stroke-dasharray="2 5" marker-end="url(#arr)" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ S3: CTA + FEATURE BUTTONS ══ -->
+    <div class="scene" id="s3">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:32px;text-align:center;padding:24px;">
+            <p class="cta-label" id="ctaLabel">Base Batch 3 &nbsp;—&nbsp; Developer Grant</p>
+            <h2 class="cta-headline" id="ctaHead">See it<br>working.</h2>
+            <button class="demo-btn" id="demoBtn" onclick="goToVideo()">
+                Watch the Demo
+                <span class="btn-circle">→</span>
+            </button>
+            <div class="feat-toggles" id="featToggles">
+                <button class="feat-toggle-btn" id="btnEscrow" onclick="togglePanel('escrow')">
+                    <span class="feat-toggle-icon">+</span>
+                    🛡️ Escrow System
+                </button>
+                <button class="feat-toggle-btn" id="btnTrust" onclick="togglePanel('trust')">
+                    <span class="feat-toggle-icon">+</span>
+                    🧠 Trust Engine
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ S4: VIDEO ══ -->
+    <div class="scene" id="s4">
+        <div class="video-top">
+            <span class="video-top-label">AgentBase — Live Demo</span>
+            <button class="video-close" onclick="goBack()">✕</button>
+        </div>
+        <div class="video-frame" id="videoFrame">
+            <!--
+        TO ADD YOUR VIDEO replace the block below with:
+        <video controls autoplay playsinline>
+          <source src="./demo.mp4" type="video/mp4" />
+        </video>
+        Then put demo.mp4 in the same folder.
+      -->
+            <div class="vid-placeholder">
+                <div class="vid-play">▶</div>
+                <span class="vid-note">// replace with demo.mp4</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ ESCROW PANEL ══ -->
+    <div class="feat-panel-wrap" id="panelEscrow">
+        <div class="feat-panel">
+            <div class="feat-panel-top">
+                <span class="feat-panel-title">🛡️ &nbsp;Escrow System</span>
+                <button class="feat-panel-close" onclick="closePanel('escrow')">✕</button>
+            </div>
+            <div class="feat-grid">
+                <div class="feat-card">
+                    <div class="feat-card-icon">🔒</div>
+                    <div class="feat-card-title">Payment Locked on Purchase</div>
+                    <div class="feat-card-desc">Funds go into a smart contract, never directly to the creator. Held for
+                        up to 72 hours while the buyer verifies the agent.</div>
+                    <span class="feat-card-tag">Smart Contract</span>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card-icon">⚖️</div>
+                    <div class="feat-card-title">Dispute & Arbitration</div>
+                    <div class="feat-card-desc">If the agent fails, the buyer opens a dispute. Escrow freezes. An
+                        arbiter multisig reviews and splits or refunds the payment.</div>
+                    <span class="feat-card-tag">Arbiter Multisig</span>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card-icon">🛡️</div>
+                    <div class="feat-card-title">Platform Insurance Pool</div>
+                    <div class="feat-card-desc">A 2.5% platform fee on every transaction funds an insurance pool,
+                        protecting buyers against bad actors and failed agents.</div>
+                    <span class="feat-card-tag">2.5% Fee Pool</span>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card-icon">⏱️</div>
+                    <div class="feat-card-title">72-Hour Verification Window</div>
+                    <div class="feat-card-desc">Buyers have a full 72-hour window to test the agent before funds
+                        release. No more "ship and ghost" by creators.</div>
+                    <span class="feat-card-tag">Time-locked</span>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card-icon">📉</div>
+                    <div class="feat-card-title">Creator Strike System</div>
+                    <div class="feat-card-desc">Repeated dispute losses trigger strikes. Multiple strikes slash the
+                        listing bond and reduce trust score, blocking new listings.</div>
+                    <span class="feat-card-tag">Listing Bond</span>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card-icon">✅</div>
+                    <div class="feat-card-title">Scam-Resistant by Design</div>
+                    <div class="feat-card-desc">The entire flow — lock, verify, dispute, release — is enforced by
+                        Solidity contracts on Base. No admin override.</div>
+                    <span class="feat-card-tag">On-chain · Base L2</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ TRUST ENGINE PANEL ══ -->
+    <div class="feat-panel-wrap" id="panelTrust">
+        <div class="feat-panel">
+            <div class="feat-panel-top">
+                <span class="feat-panel-title">🧠 &nbsp;Trust Engine</span>
+                <button class="feat-panel-close" onclick="closePanel('trust')">✕</button>
+            </div>
+            <div class="feat-grid feat-grid-2">
+                <div class="feat-card">
+                    <div class="feat-card-icon">🧮</div>
+                    <div class="feat-card-title">Multi-Factor Trust Score</div>
+                    <div class="feat-card-desc">Score combines contributions, staked tokens, agent performance, and
+                        recent activity. Determines tier: Verified, Reviewed, Experimental, or Restricted.</div>
+                    <span class="feat-card-tag">ChainSync Engine</span>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card-icon">🎯</div>
+                    <div class="feat-card-title">Tiered Platform Benefits</div>
+                    <div class="feat-card-desc">Higher trust unlocks lower listing fees, faster payouts, and premium
+                        placement. Low-trust users face restrictions and higher barriers.</div>
+                    <span class="feat-card-tag">Trust Tiers</span>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card-icon">⛓️</div>
+                    <div class="feat-card-title">Off-Chain Calc, On-Chain Enforce</div>
+                    <div class="feat-card-desc">Scores computed off-chain for efficiency, then synced on Base where
+                        smart contracts enforce permissions — best of both worlds.</div>
+                    <span class="feat-card-tag">Hybrid Architecture</span>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card-icon">🔐</div>
+                    <div class="feat-card-title">Anti-Gaming Mechanisms</div>
+                    <div class="feat-card-desc">Peer weighting, daily trust limits, and sybil resistance ensure the
+                        reputation system cannot be farmed, faked, or manipulated.</div>
+                    <span class="feat-card-tag">Sybil Resistant</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOTS -->
+    <div class="dots" id="dots">
+        <div class="dot active" onclick="jumpTo(0)"></div>
+        <div class="dot" onclick="jumpTo(1)"></div>
+        <div class="dot" onclick="jumpTo(2)"></div>
+    </div>
+
+    <button class="skip" id="skipBtn" onclick="skipToEnd()">Skip →</button>
+
+    <script>
+        let current = 0;
+
+        function showScene(n) {
+            document.querySelectorAll('.scene').forEach((s, i) => s.classList.toggle('active', i === n));
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === n));
+            current = n;
+            const onVideo = n === 3;
+            document.getElementById('dots').style.opacity = onVideo ? '0' : '1';
+            document.getElementById('skipBtn').style.opacity = onVideo ? '0' : '1';
+        }
+
+        function jumpTo(n) {
+            const fns = [runS1, runS2, runS3];
+            showScene(n); if (fns[n]) fns[n](true);
+        }
+
+        /* S1 */
+        function runS1(instant) {
+            const d = instant ? 0 : 1;
+            const eye = document.getElementById('s1eye');
+            const brand = document.getElementById('brandWord');
+            const tag = document.getElementById('brandTag');
+            const pills = document.getElementById('brandPills');
+            eye.classList.remove('in'); brand.classList.remove('in');
+            tag.classList.remove('in'); pills.classList.remove('in');
+            setTimeout(() => eye.classList.add('in'), d * 150);
+            setTimeout(() => brand.classList.add('in'), d * 300);
+            setTimeout(() => tag.classList.add('in'), d * 500);
+            setTimeout(() => pills.classList.add('in'), d * 700);
+            if (!instant) setTimeout(() => { showScene(1); runS2(); }, 4000);
+        }
+
+        /* S2 */
+        function runS2(instant) {
+            const d = instant ? 0 : 1;
+            const lbl = document.getElementById('archLabel');
+            const dia = document.getElementById('archDiagram');
+            lbl.classList.remove('in'); dia.classList.remove('in');
+            setTimeout(() => lbl.classList.add('in'), d * 200);
+            setTimeout(() => dia.classList.add('in'), d * 400);
+            if (!instant) setTimeout(() => { showScene(2); runS3(); }, 5500);
+        }
+
+        /* S3 — CTA */
+        function runS3(instant) {
+            const d = instant ? 0 : 1;
+            ['ctaLabel', 'ctaHead', 'demoBtn', 'featToggles'].forEach(id => {
+                document.getElementById(id).classList.remove('in');
+            });
+            setTimeout(() => document.getElementById('ctaLabel').classList.add('in'), d * 200);
+            setTimeout(() => document.getElementById('ctaHead').classList.add('in'), d * 500);
+            setTimeout(() => document.getElementById('demoBtn').classList.add('in'), d * 850);
+            setTimeout(() => document.getElementById('featToggles').classList.add('in'), d * 1100);
+        }
+
+        /* Panel toggle */
+        function togglePanel(which) {
+            const panelId = which === 'escrow' ? 'panelEscrow' : 'panelTrust';
+            const btnId = which === 'escrow' ? 'btnEscrow' : 'btnTrust';
+            const panel = document.getElementById(panelId);
+            const btn = document.getElementById(btnId);
+            const isOpen = panel.classList.contains('open');
+            document.querySelectorAll('.feat-panel-wrap').forEach(p => p.classList.remove('open'));
+            document.querySelectorAll('.feat-toggle-btn').forEach(b => b.classList.remove('open'));
+            if (!isOpen) { panel.classList.add('open'); btn.classList.add('open'); }
+        }
+
+        function closePanel(which) {
+            const panelId = which === 'escrow' ? 'panelEscrow' : 'panelTrust';
+            const btnId = which === 'escrow' ? 'btnEscrow' : 'btnTrust';
+            document.getElementById(panelId).classList.remove('open');
+            document.getElementById(btnId).classList.remove('open');
+        }
+
+        document.querySelectorAll('.feat-panel-wrap').forEach(wrap => {
+            wrap.addEventListener('click', e => {
+                if (e.target === wrap) {
+                    wrap.classList.remove('open');
+                    document.querySelectorAll('.feat-toggle-btn').forEach(b => b.classList.remove('open'));
+                }
+            });
+        });
+
+        function goToVideo() {
+            showScene(3);
+            document.getElementById('videoFrame').classList.remove('in');
+            setTimeout(() => document.getElementById('videoFrame').classList.add('in'), 80);
+        }
+
+        function goBack() {
+            document.getElementById('videoFrame').classList.remove('in');
+            setTimeout(() => { showScene(2); runS3(true); }, 500);
+        }
+
+        function skipToEnd() { showScene(2); runS3(true); }
+
+        runS1();
+    </script>
+</body>
+
+</html>

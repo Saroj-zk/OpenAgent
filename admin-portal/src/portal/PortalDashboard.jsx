@@ -107,7 +107,7 @@ const PortalDashboard = () => {
                     <div style={{ width: '36px', height: '36px', background: '#3b82f6', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
                         <Shield size={20} />
                     </div>
-                    <span>OpenAgent Admin</span>
+                    <span>AgentBase Admin</span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>

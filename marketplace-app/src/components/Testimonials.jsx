@@ -4,19 +4,19 @@ import { MessageSquare, Twitter, Github, Bot } from 'lucide-react';
 const Testimonials = () => {
     const testimonials = [
         {
-            text: "Setup OpenAgent yesterday. All I have to say is, wow. First I was using my Claude-Max sub and I used all of my limit quickly, now...",
+            text: "Setup AgentBase yesterday. All I have to say is, wow. First I was using my Claude-Max sub and I used all of my limit quickly, now...",
             author: "@jonah_dev",
             role: "Developer",
             image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jonah"
         },
         {
-            text: "OpenAgent is a game changer, the potential for custom extensions is huge, and it really speeds up the process.",
+            text: "AgentBase is a game changer, the potential for custom extensions is huge, and it really speeds up the process.",
             author: "@Senator_NFTs",
             role: "NFT Collector",
             image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Senator"
         },
         {
-            text: "Tried custom agents before, but kept hitting walls. OpenAgent gets right what others miss. Persistent memory is key.",
+            text: "Tried custom agents before, but kept hitting walls. AgentBase gets right what others miss. Persistent memory is key.",
             author: "@Tech_Viking",
             role: "Engineer",
             image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Viking"
