@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const x402Middleware = require('../middleware/x402-middleware');
-const TrustEngine = require('../server/trust-engine/TrustEngine'); // Import for boost
+const TrustEngine = require('../trust-engine/TrustEngine'); // Import for boost
 
 const trustEngine = new TrustEngine();
 

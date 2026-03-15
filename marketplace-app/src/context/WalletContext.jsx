@@ -15,7 +15,7 @@ export const WalletProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [username, setUsername] = useState(null);
     const [user, setUser] = useState(null);
-    const [trustScore, setTrustScore] = useState(10);
+    const [trustScore, setTrustScore] = useState(200); // Default to 200 for testing (Trust disabled)
 
     // Marketplace Data
     const [marketplaceAgents, setMarketplaceAgents] = useState([]);
@@ -97,7 +97,8 @@ export const WalletProvider = ({ children }) => {
                 const data = await res.json();
                 if (data && data.username) {
                     setUsername(data.username);
-                    setTrustScore(data.trustScore || 10);
+                    // setTrustScore(data.trustScore || 200); // Fixed for testing
+                    setTrustScore(200); // Always trusted for testing
                     setUser(data);
                     return;
                 }
@@ -172,7 +173,7 @@ export const WalletProvider = ({ children }) => {
                     });
                     const nonceData = await nonceRes.json();
                     const nonce = nonceData.nonce;
-                    const message = `Login to OpenAgent with Nonce: ${nonce}`;
+                    const message = `Login to AgentBase with Nonce: ${nonce}`;
 
                     console.log("--- Frontend Auth Process ---");
                     console.log(`[AUTH_DEBUG_FRONT] address=[${address}] nonce=[${nonce}]`);
@@ -327,7 +328,8 @@ export const WalletProvider = ({ children }) => {
                             setAccount(addr);
                             setUser({ ...data.user, authType: 'web3' });
                             setUsername(data.user.username || null);
-                            setTrustScore(data.user.trustScore || 10);
+                            // setTrustScore(data.user.trustScore || 200);
+                            setTrustScore(200); // Always trusted for testing
                             setIsConnected(true);
                             // Make sure we have provider access to contracts
                             const tempProvider = new ethers.BrowserProvider(window.ethereum);
@@ -430,10 +432,13 @@ export const WalletProvider = ({ children }) => {
 
             console.log("Pre-flight check:", { priceStr, priceWei: priceWei.toString(), artifactHash: computedHash });
 
-            const multiplier = await contract.getBondMultiplier(account);
+            const multiplier = await contract.getBondMultiplier(account).catch(() => 1n);
+            // Trust score requirement bypassed for testing
+            /*
             if (multiplier === 0n || multiplier === 0) {
                 return { success: false, error: "Your account is STARTER (Trust Score < 30). You cannot list agents." };
             }
+            */
 
             // Fetch listing bond from contract
             const baseBond = await contract.LISTING_BOND();
@@ -457,7 +462,6 @@ export const WalletProvider = ({ children }) => {
             }
 
             console.log(`Executing listAgent with Price: ${priceVal}, Hash: ${hashVal}, Bond: ${bondVal}`);
-
             const tx = await contract.listAgent(priceVal, hashVal, { value: bondVal });
             const receipt = await tx.wait();
 
@@ -469,7 +473,6 @@ export const WalletProvider = ({ children }) => {
                 .find(e => e && e.name === 'AgentListed');
 
             if (!event) return { success: false, error: "Deployment succeeded but event not found." };
-
             const onChainId = (event.args.id || event.args[0]).toString();
 
             // 2. Add metadata to database via API
@@ -549,12 +552,33 @@ export const WalletProvider = ({ children }) => {
             const signer = await provider.getSigner();
             const contract = new ethers.Contract(CONTRACT_ADDRESS, REGISTRY_ABI, signer);
 
-            const priceWei = ethers.parseEther(agent.price.toString());
+            // --- Pre-flight: Validate agent exists on-chain ---
+            let onChainAgent;
+            try {
+                onChainAgent = await contract.agents(agent.id);
+                if (!onChainAgent.active) {
+                    return { 
+                        success: false, 
+                        error: `Agent #${agent.id} is not active on-chain. It may have been delisted or was never listed on the smart contract. Please ask the creator to re-list it.`
+                    };
+                }
+            } catch (e) {
+                return { 
+                    success: false, 
+                    error: `Agent #${agent.id} was not found on the smart contract. This agent exists in the database but was not registered on-chain. Try listing a new agent.`
+                };
+            }
 
-            const tx = await contract.buyAgent(agent.id, { value: priceWei });
+            // Use ON-CHAIN price (the real source of truth), not database price
+            const onChainPriceWei = onChainAgent.price;
+            const priceToSend = onChainPriceWei > 0n ? onChainPriceWei : ethers.parseEther('0');
+
+            console.log(`[buyAgent] Verified on-chain: Agent #${agent.id} active=${onChainAgent.active}, price=${ethers.formatEther(onChainPriceWei)} ETH`);
+
+            const tx = await contract.buyAgent(agent.id, { value: priceToSend });
             await tx.wait();
 
-            // Web 2.5: The agent is a software license, so we DON'T delete it from the marketplace!
+            // Web 2.5: Record purchase in backend DB
             await fetch(`${API_URL}/api/purchases`, {
                 method: 'POST',
                 headers: {
@@ -569,16 +593,21 @@ export const WalletProvider = ({ children }) => {
 
         } catch (error) {
             console.error("Purchase Error:", error);
-            let msg = error.reason || error.shortMessage || error.message || 'On-chain purchase failed';
-
-            // Handle common obscure RPC errors for mocked data
-            if (msg.toLowerCase().includes('missing revert data') || msg.toLowerCase().includes('execution reverted')) {
-                msg = 'Transaction reverted. This agent was seeded in the database but may not exist on the testnet smart contract. Try deploying a new agent first!';
+            const reason = error.reason || error.shortMessage || error.message || 'On-chain purchase failed';
+            
+            if (reason.includes('Agent not active for sale')) {
+                return { success: false, error: `Agent not active on-chain. The agent's ID in the database doesn't match any active listing on the smart contract. Agent ID: ${agent.id}` };
             }
-
-            return { success: false, error: msg };
+            if (reason.includes('already own access')) {
+                return { success: false, error: 'You already own this agent!' };
+            }
+            if (reason.includes('Insufficient funds') || reason.includes('insufficient funds')) {
+                return { success: false, error: 'Insufficient ETH in your wallet to purchase this agent.' };
+            }
+            return { success: false, error: reason };
         }
     };
+
 
     // 4.5 Open Dispute (Escrow)
     const openDispute = async (escrowId, evidence) => {

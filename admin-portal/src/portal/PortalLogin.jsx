@@ -81,7 +81,7 @@ const PortalLogin = () => {
                                     type="email"
                                     className="portal-input"
                                     style={{ paddingLeft: '48px' }}
-                                    placeholder="admin@openagent.ai"
+                                    placeholder="admin@agentbase.ai"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -115,7 +115,7 @@ const PortalLogin = () => {
                     </form>
 
                     <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '13px', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div>&copy; 2026 OpenAgent Collective</div>
+                        <div>&copy; 2026 AgentBase Collective</div>
                         <div style={{ fontSize: '11px', opacity: 0.6 }}>Internal Use Only &bull; Secured with Protocol-Level Encryption</div>
                     </div>
                 </div>

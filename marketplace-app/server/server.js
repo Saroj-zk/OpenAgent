@@ -37,6 +37,20 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Ensure uploads dir
 if (!fs.existsSync(path.join(__dirname, 'uploads'))) fs.mkdirSync(path.join(__dirname, 'uploads'));
+// Basic Request Logging
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
+
+// Health Check
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'UP', 
+        timestamp: new Date(), 
+        env: process.env.NODE_ENV || 'development' 
+    });
+});
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -53,29 +67,61 @@ app.use('/api/x402', x402Routes);
 
 // --- Production Ready Static File Serving ---
 // Serve the Admin Portal build specifically on the /portal path
-app.use('/portal', express.static(path.join(__dirname, 'public-portal')));
-app.use('/portal', (req, res, next) => {
-    if (req.method !== 'GET') return next();
-    res.sendFile(path.join(__dirname, 'public-portal', 'index.html'));
-});
+const portalDir = path.join(__dirname, 'public-portal');
+if (fs.existsSync(portalDir)) {
+    app.use('/portal', express.static(portalDir));
+    app.get('/portal/*', (req, res, next) => {
+        if (req.accepts('html')) {
+            res.sendFile(path.join(portalDir, 'index.html'));
+        } else {
+            next();
+        }
+    });
+}
 
 // Serve the Main App build on root
-app.use(express.static(path.join(__dirname, 'public')));
+const publicDir = path.join(__dirname, 'public');
+if (fs.existsSync(publicDir)) {
+    app.use(express.static(publicDir));
+}
 
-// Catch-all for main app router
-app.all('/api/*', (req, res, next) => {
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+// Catch-all for API (404)
+app.use('/api', (req, res, next) => {
+    next(new AppError(`API endpoint ${req.originalUrl} not found`, 404));
 });
 
-app.use((req, res, next) => {
-    if (req.method !== 'GET') return next();
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// SPA Catch-all for main app
+if (fs.existsSync(publicDir)) {
+    app.get('*', (req, res, next) => {
+        if (req.accepts('html')) {
+            res.sendFile(path.join(publicDir, 'index.html'));
+        } else {
+            next();
+        }
+    });
+}
 
-// Deployment of Global Error Handler
+// Global Error Handler
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`🚀 OpenAgent Backend: http://localhost:${PORT}`);
-    startIndexer();
+    
+    // Start indexer asynchronously and catch errors to prevent server crash
+    try {
+        startIndexer().catch(err => {
+            console.error("⚠️ Background Indexer failed to start:", err.message);
+        });
+    } catch (e) {
+        console.error("⚠️ Failed to initialize Indexer service:", e.message);
+    }
+});
+
+// Graceful Shutdown
+process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+        console.log('HTTP server closed');
+        process.exit(0);
+    });
 });

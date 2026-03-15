@@ -7,6 +7,7 @@ const PostSchema = z.object({
 });
 
 const AgentSchema = z.object({
+    id: z.string().or(z.number()).optional(),
     name: z.string().min(2),
     role: z.string().min(2),
     price: z.string(),

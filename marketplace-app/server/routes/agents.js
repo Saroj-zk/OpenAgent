@@ -144,6 +144,10 @@ router.post('/', authenticateToken, cpUpload, async (req, res) => {
             successful_runs_30d: 0
         };
 
+        if (!id) {
+            console.warn("⚠️ Deployment Warning: No On-Chain ID provided. Falling back to timestamp ID. This agent may not be purchasable.");
+        }
+
         const newAgent = await Agent.create(newAgentData);
         await trustEngine.updateTrustScore(owner, 2.0, 'agent_deploy');
 

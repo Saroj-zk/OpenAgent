@@ -15,6 +15,7 @@ async function startIndexer() {
     const httpProvider = new ethers.JsonRpcProvider(RPC_URL);
 
     const ABI = [
+        "event AgentListed(uint256 indexed id, address indexed creator, uint256 price, bytes32 artifactHash)",
         "event AgentBought(uint256 indexed id, address indexed buyer, uint256 price)",
         "event IdentityClaimed(address indexed user, string username)",
         "event EscrowCreated(uint256 indexed escrowId, uint256 indexed agentId, address indexed buyer, address creator, uint256 amount, uint256 createdAt, uint256 expiryAt)",
@@ -57,11 +58,13 @@ async function startIndexer() {
             }
         }
 
-        if (!['AgentBought', 'IdentityClaimed', 'EscrowCreated', 'EscrowFinalized', 'DisputeOpened', 'DisputeResolved', 'Subscribed', 'Extended', 'Cancelled'].includes(eventName)) return;
+        if (!['AgentListed', 'AgentBought', 'IdentityClaimed', 'EscrowCreated', 'EscrowFinalized', 'DisputeOpened', 'DisputeResolved', 'Subscribed', 'Extended', 'Cancelled'].includes(eventName)) return;
 
         let parsedData = alreadyParsedData;
         if (!parsedData) {
-            if (eventName === 'AgentBought' && args) {
+            if (eventName === 'AgentListed' && args) {
+                parsedData = { id: args[0].toString(), creator: args[1].toLowerCase(), price: args[2].toString(), artifactHash: args[3] };
+            } else if (eventName === 'AgentBought' && args) {
                 parsedData = { id: args[0].toString(), buyer: args[1].toLowerCase(), price: args[2].toString() };
             } else if (eventName === 'IdentityClaimed' && args) {
                 parsedData = { user: args[0].toLowerCase(), username: args[1] };
@@ -97,7 +100,22 @@ async function startIndexer() {
 
         if (status === 'confirmed') {
             try {
-                if (eventName === "AgentBought") {
+                if (eventName === "AgentListed") {
+                    const Agent = require('./models/Agent');
+                    await Agent.findOneAndUpdate(
+                        { id: parsedData.id },
+                        { 
+                            id: parsedData.id, 
+                            creator: parsedData.creator, 
+                            owner: parsedData.creator, 
+                            price: ethers.formatEther(parsedData.price), 
+                            artifactHash: parsedData.artifactHash,
+                            status: 'LISTED' 
+                        },
+                        { upsert: true }
+                    );
+                    console.log(`📡 [Indexer] Confirmed: Sync Agent ${parsedData.id} by ${parsedData.creator}`);
+                } else if (eventName === "AgentBought") {
                     const idStr = parsedData.id;
                     const buyerStr = parsedData.buyer;
                     await Purchase.findOneAndUpdate(
