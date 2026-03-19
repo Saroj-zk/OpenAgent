@@ -1,13 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, REGISTRY_ABI, SUBSCRIPTIONS_ADDRESS, SUBSCRIPTIONS_ABI } from '../contracts';
-import { useNavigate } from 'react-router-dom';
 
 const WalletContext = createContext();
 
 export const useWallet = () => useContext(WalletContext);
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 export const WalletProvider = ({ children }) => {
     // --- State Management ---
@@ -15,7 +14,7 @@ export const WalletProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [username, setUsername] = useState(null);
     const [user, setUser] = useState(null);
-    const [trustScore, setTrustScore] = useState(200); // Default to 200 for testing (Trust disabled)
+    const [trustScore, setTrustScore] = useState(10);
 
     // Marketplace Data
     const [marketplaceAgents, setMarketplaceAgents] = useState([]);
@@ -81,9 +80,10 @@ export const WalletProvider = ({ children }) => {
             const identity = await contract.identities(address);
             if (identity && identity.exists) {
                 setUsername(identity.username);
-            } else {
                 await fetchBackendIdentity(address);
+                return;
             }
+            await fetchBackendIdentity(address);
         } catch (error) {
             console.error("Failed to sync identity from chain, checking backend...");
             await fetchBackendIdentity(address);
@@ -95,10 +95,9 @@ export const WalletProvider = ({ children }) => {
             const res = await fetch(`${API_URL}/api/users/${address}`);
             if (res.ok) {
                 const data = await res.json();
-                if (data && data.username) {
-                    setUsername(data.username);
-                    // setTrustScore(data.trustScore || 200); // Fixed for testing
-                    setTrustScore(200); // Always trusted for testing
+                if (data) {
+                    setUsername(data.username || null);
+                    setTrustScore(typeof data.trustScore === 'number' ? data.trustScore : 10);
                     setUser(data);
                     return;
                 }
@@ -107,6 +106,7 @@ export const WalletProvider = ({ children }) => {
             console.error(e);
         }
         setUsername(null);
+        setTrustScore(10);
     };
 
     // --- Blockchain Interactions (Web3) ---
@@ -173,7 +173,7 @@ export const WalletProvider = ({ children }) => {
                     });
                     const nonceData = await nonceRes.json();
                     const nonce = nonceData.nonce;
-                    const message = `Login to AgentBase with Nonce: ${nonce}`;
+                    const message = `Login to SAW with Nonce: ${nonce}`;
 
                     console.log("--- Frontend Auth Process ---");
                     console.log(`[AUTH_DEBUG_FRONT] address=[${address}] nonce=[${nonce}]`);
@@ -328,8 +328,7 @@ export const WalletProvider = ({ children }) => {
                             setAccount(addr);
                             setUser({ ...data.user, authType: 'web3' });
                             setUsername(data.user.username || null);
-                            // setTrustScore(data.user.trustScore || 200);
-                            setTrustScore(200); // Always trusted for testing
+                            setTrustScore(typeof data.user.trustScore === 'number' ? data.user.trustScore : 10);
                             setIsConnected(true);
                             // Make sure we have provider access to contracts
                             const tempProvider = new ethers.BrowserProvider(window.ethereum);
@@ -629,14 +628,23 @@ export const WalletProvider = ({ children }) => {
             await tx.wait();
 
             // Update local DB instantly so frontend registers it before indexer catches up
-            fetch(`${API_URL}/api/disputes`, {
+            const syncRes = await fetch(`${API_URL}/api/disputes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
                 },
                 body: JSON.stringify({ escrowId, evidence })
-            }).catch(() => { });
+            });
+
+            if (!syncRes.ok) {
+                const syncData = await syncRes.json().catch(() => ({}));
+                return {
+                    success: true,
+                    transaction: tx,
+                    warning: syncData.error || 'Dispute opened on-chain, but backend sync is still pending.'
+                };
+            }
 
             return { success: true, transaction: tx };
         } catch (error) {

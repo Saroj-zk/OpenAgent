@@ -5,6 +5,7 @@ const Purchase = require('../models/Purchase');
 const User = require('../models/User');
 const portalAuth = require('../middleware/portalAuthMiddleware');
 const { ethers } = require('ethers');
+const { PURCHASE_STATUS, normalizePurchaseStatus } = require('../utils/purchaseStatus');
 
 // All routes here are protected by Portal Email/Pass Auth
 router.use(portalAuth);
@@ -16,7 +17,9 @@ router.get('/stats', async (req, res) => {
         const totalUsers = await User.countDocuments();
         const totalPurchases = await Purchase.countDocuments();
 
-        const purchases = await Purchase.find({ status: { $ne: 'refunded' } });
+        const purchases = await Purchase.find({
+            status: { $ne: PURCHASE_STATUS.REFUNDED }
+        });
         let totalVolume = 0;
         for (const p of purchases) {
             const agent = await Agent.findOne({ id: p.agentId });
@@ -58,6 +61,7 @@ router.get('/purchases', async (req, res) => {
             }
             return {
                 ...p.toObject(),
+                status: normalizePurchaseStatus(p.status),
                 agentName: agent ? agent.name : 'Unknown Agent',
                 price: agent ? agent.price : '0.0',
                 seller: agent ? agent.owner : 'N/A'
@@ -73,7 +77,9 @@ router.get('/purchases', async (req, res) => {
 // GET all disputed purchases for arbitration
 router.get('/disputes', async (req, res) => {
     try {
-        const disputes = await Purchase.find({ status: 'disputed' }).sort({ disputeDate: -1 });
+        const disputes = await Purchase.find({
+            status: { $in: [PURCHASE_STATUS.DISPUTED, 'DISPUTED'] }
+        }).sort({ disputeDate: -1 });
         const abi = ["function resolveDispute(uint256 _escrowId, uint256 _buyerPayout, uint256 _creatorPayout) external"];
         const iface = new ethers.Interface(abi);
 
@@ -100,6 +106,7 @@ router.get('/disputes', async (req, res) => {
 
             return {
                 ...d.toObject(),
+                status: normalizePurchaseStatus(d.status),
                 escrowId,
                 agentName: agent ? agent.name : 'Unknown Agent',
                 seller: agent ? (agent.owner || agent.creator) : 'Unknown',
@@ -123,9 +130,11 @@ router.get('/disputes', async (req, res) => {
 router.post('/disputes/:id/resolve', async (req, res) => {
     try {
         const purchase = await Purchase.findById(req.params.id);
-        if (!purchase || purchase.status !== 'disputed') return res.status(404).json({ error: 'Dispute not found' });
+        if (!purchase || normalizePurchaseStatus(purchase.status) !== PURCHASE_STATUS.DISPUTED) {
+            return res.status(404).json({ error: 'Dispute not found' });
+        }
 
-        purchase.status = 'refunded';
+        purchase.status = PURCHASE_STATUS.REFUNDED;
         await purchase.save();
 
         const agent = await Agent.findOne({ id: purchase.agentId });
@@ -147,13 +156,20 @@ router.post('/disputes/:id/resolve', async (req, res) => {
 router.post('/disputes/:id/reject', async (req, res) => {
     try {
         const purchase = await Purchase.findById(req.params.id);
-        if (!purchase || purchase.status !== 'disputed') return res.status(404).json({ error: 'Dispute not found' });
+        if (!purchase || normalizePurchaseStatus(purchase.status) !== PURCHASE_STATUS.DISPUTED) {
+            return res.status(404).json({ error: 'Dispute not found' });
+        }
 
-        purchase.status = 'completed';
+        purchase.status = PURCHASE_STATUS.COMPLETED;
         await purchase.save();
 
         const trustEngine = require('../utils/trustEngine');
-        await trustEngine.updateTrustScore(purchase.disputedBy, -3.0, 'marketplace_outcome', 'admin');
+        await trustEngine.updateTrustScore(
+            purchase.disputedByAddress || purchase.disputedBy,
+            -3.0,
+            'marketplace_outcome',
+            'admin'
+        );
 
         res.json({ success: true, message: 'Dispute rejected locally. Action required on-chain via Safe.' });
     } catch (err) {

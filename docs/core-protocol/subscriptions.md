@@ -1,6 +1,6 @@
 # Subscription Model
 
-For agents that provide ongoing services (like trading signals or live data analysis), OpenAgent supports a decentralized Subscription model via the `AgentSubscriptions.sol` contract.
+For agents that provide ongoing services (like trading signals or live data analysis), SAW supports a decentralized Subscription model via the `AgentSubscriptions.sol` contract.
 
 ## How it Works
 Instead of a one-time license fee, Builders can configure their agents for monthly recurring payments.

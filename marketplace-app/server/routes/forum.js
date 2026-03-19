@@ -26,9 +26,10 @@ router.get('/', async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
     try {
         const validatedData = PostSchema.parse(req.body);
-        const { author, content, agentId } = validatedData;
+        const { content, agentId } = validatedData;
 
-        const user = await User.findOne({ username: author });
+        const user = await User.findOne({ address: req.user.address.toLowerCase() });
+        const author = user?.username || req.user.address.substring(0,8);
         if (user) {
             const trustScore = await trustEngine.computeUserTrust(author);
             let maxPosts = 1;
@@ -62,8 +63,10 @@ router.post('/', authenticateToken, async (req, res) => {
 
 router.post('/:id/comment', authenticateToken, async (req, res) => {
     const { id } = req.params;
-    const { author, content } = req.body;
+    const { content } = req.body;
     try {
+        const user = await User.findOne({ address: req.user.address.toLowerCase() });
+        const author = user?.username || req.user.address.substring(0,8);
         const post = await ForumPost.findOne({ id });
         if (!post) return res.status(404).json({ error: 'Not found' });
 
@@ -87,8 +90,10 @@ router.post('/:id/comment', authenticateToken, async (req, res) => {
 
 router.post('/:id/like', authenticateToken, async (req, res) => {
     const { id } = req.params;
-    const { author } = req.body;
     try {
+        const user = await User.findOne({ address: req.user.address.toLowerCase() });
+        const author = user?.username || req.user.address.substring(0,8);
+        
         const post = await ForumPost.findOne({ id });
         if (!post) return res.status(404).json({ error: 'Not found' });
 

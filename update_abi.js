@@ -1,5 +1,5 @@
 const fs = require('fs');
-const artifact = JSON.parse(fs.readFileSync('artifacts/contracts/OpenAgentRegistry.sol/OpenAgentRegistry.json', 'utf8'));
+const artifact = JSON.parse(fs.readFileSync('artifacts/contracts/SAWRegistry.sol/SAWRegistry.json', 'utf8'));
 
 let contractsFile = fs.readFileSync('marketplace-app/src/contracts.js', 'utf8');
 

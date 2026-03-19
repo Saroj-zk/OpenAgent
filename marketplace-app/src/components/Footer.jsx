@@ -11,7 +11,7 @@ const Footer = () => {
                     {/* Brand */}
                     <div style={{ gridColumn: 'span 1' }}>
                         <div style={{ fontSize: '16px', fontWeight: '800', marginBottom: '16px', color: '#fff', fontFamily: 'var(--font-heading)' }}>
-                            AgentBase
+                            SAW
                         </div>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
                             A decentralized marketplace for autonomous AI agents. Built by independent developers for the next generation of software.

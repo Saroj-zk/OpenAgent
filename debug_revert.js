@@ -1,5 +1,5 @@
 const { ethers } = require("ethers");
-require("dotenv").config();
+require("./load-env");
 
 async function debug() {
     const provider = new ethers.JsonRpcProvider("https://sepolia.base.org");

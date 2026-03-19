@@ -36,8 +36,8 @@ const Content = () => {
           <Route path="/" element={<Home />} />
           <Route path="/welcome" element={<Landing />} />
           <Route path="/explore" element={<Explore />} />
-          <Route path="/auctions" element={<Home />} />
-          <Route path="/auction/:id" element={<Home />} />
+          <Route path="/auctions" element={<Auctions />} />
+          <Route path="/auction/:id" element={<AuctionDetails />} />
           <Route path="/sell" element={<SellAgent />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/agent/:id" element={<AgentDetails />} />

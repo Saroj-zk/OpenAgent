@@ -2,21 +2,23 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
-describe("OpenAgentRegistry - Escrow Lifecycle", function () {
+describe("SAWRegistry - Escrow Lifecycle", function () {
     let Registry;
     let registry;
     let owner;
     let creator;
     let buyer;
     let agentId;
+    let listingBond;
 
     const ESCROW_WINDOW = 72 * 60 * 60; // 72 hours
 
     beforeEach(async function () {
         [owner, creator, buyer] = await ethers.getSigners();
 
-        Registry = await ethers.getContractFactory("OpenAgentRegistry");
+        Registry = await ethers.getContractFactory("contracts/OpenAgentRegistry.sol:SAWRegistry");
         registry = await Registry.deploy(owner.address);
+        listingBond = await registry.LISTING_BOND();
 
         // List an agent
         const price = ethers.parseEther("1.0");
@@ -25,7 +27,7 @@ describe("OpenAgentRegistry - Escrow Lifecycle", function () {
         // Give creator VERIFIED status (1x bond)
         await registry.connect(owner).setTrustScore(creator.address, 200);
 
-        await registry.connect(creator).listAgent(price, mockHash, { value: ethers.parseEther("0.01") });
+        await registry.connect(creator).listAgent(price, mockHash, { value: listingBond });
         agentId = 1; // Assuming it's the first agent
     });
 
@@ -185,9 +187,9 @@ describe("OpenAgentRegistry - Escrow Lifecycle", function () {
     });
 
     it("Should apply strikes and slash the bond if creator loses dispute", async function () {
-        const bondAmount = ethers.parseEther("0.01");
+        const bondAmount = listingBond;
 
-        // At start, creator bond is 0.01 ETH
+        // At start, creator bond equals the configured base listing bond
         let creatorBondBefore = await registry.creatorBonds(creator.address);
         expect(creatorBondBefore).to.equal(bondAmount);
 
@@ -224,7 +226,7 @@ describe("OpenAgentRegistry - Escrow Lifecycle", function () {
         // Trust score 10 (Restricted)
         await registry.connect(owner).setTrustScore(restrictedUser.address, 10);
 
-        await expect(registry.connect(restrictedUser).listAgent(price, mockHash, { value: ethers.parseEther("0.01") }))
+        await expect(registry.connect(restrictedUser).listAgent(price, mockHash, { value: listingBond }))
             .to.be.revertedWith("Trust score < 50 (RESTRICTED)");
     });
 
@@ -236,12 +238,12 @@ describe("OpenAgentRegistry - Escrow Lifecycle", function () {
         // Trust score 50 (Experimental)
         await registry.connect(owner).setTrustScore(expUser.address, 50);
 
-        // Try with 1x bond (0.01) -> should fail
-        await expect(registry.connect(expUser).listAgent(price, mockHash, { value: ethers.parseEther("0.01") }))
+        // Try with 1x bond -> should fail
+        await expect(registry.connect(expUser).listAgent(price, mockHash, { value: listingBond }))
             .to.be.revertedWith("Incorrect bond amount");
 
-        // Try with 3x bond (0.03) -> should succeed
-        await expect(registry.connect(expUser).listAgent(price, mockHash, { value: ethers.parseEther("0.03") }))
+        // Try with 3x bond -> should succeed
+        await expect(registry.connect(expUser).listAgent(price, mockHash, { value: listingBond * 3n }))
             .to.emit(registry, "AgentListed");
     });
 

@@ -1,6 +1,6 @@
 # Listing your Agent (For Builders)
 
-OpenAgent is designed to be the premier distribution channel for independent AI developers. This guide outlines the process of listing and managing your AI agents on the protocol.
+SAW is designed to be the premier distribution channel for independent AI developers. This guide outlines the process of listing and managing your AI agents on the protocol.
 
 ## Step 1: Prepare your Artifact
 Before listing, you must package your AI agent.
@@ -16,10 +16,10 @@ Your ability to list and the cost of doing so is determined by your [Trust Score
     *   **Experimental**: 3x Bond
 
 ## Step 3: Create the Listing
-Using the OpenAgent Dashboard or calling the contract directly:
+Using the SAW Dashboard or calling the contract directly:
 1.  Enter the **Price** in ETH.
 2.  Provide the **Artifact Hash**.
-3.  Upload metadata (Title, Description, Tags, and Preview Image) to the OpenAgent backend.
+3.  Upload metadata (Title, Description, Tags, and Preview Image) to the SAW backend.
 4.  Execute the `listAgent` transaction.
 
 ## Step 4: Manage Your Portfolio

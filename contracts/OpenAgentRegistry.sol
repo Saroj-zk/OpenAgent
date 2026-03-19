@@ -4,10 +4,10 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
- * @title OpenAgentRegistry
- * @dev Handles identities, agent listings, and auctions for the OpenAgent Marketplace.
+ * @title SAWRegistry
+ * @dev Handles identities, agent listings, and auctions for the SAW Marketplace.
  */
-contract OpenAgentRegistry is ReentrancyGuard {
+contract SAWRegistry is ReentrancyGuard {
     address public owner;
     address public arbiter;
     address public insurancePool;
@@ -50,6 +50,7 @@ contract OpenAgentRegistry is ReentrancyGuard {
     // Verifies if a user has purchased access to a specific agent: agentId => userAddress => bool
     mapping(uint256 => mapping(address => bool)) public hasAccess;
 
+    mapping(address => uint256) public pendingWithdrawals;
     mapping(uint256 => Auction) public auctions;
     
     uint256 public nextAgentId = 1;
@@ -143,6 +144,13 @@ contract OpenAgentRegistry is ReentrancyGuard {
         return id;
     }
 
+    function withdrawBond(uint256 amount) external nonReentrant {
+        require(creatorBonds[msg.sender] >= amount, "Insufficient bond");
+        creatorBonds[msg.sender] -= amount;
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+
     function getAgentArtifactHash(uint256 _id) external view returns (bytes32) {
         return agents[_id].artifactHash;
     }
@@ -185,7 +193,8 @@ contract OpenAgentRegistry is ReentrancyGuard {
         uint256 fee = (msg.value * platformFee) / 1000;
         uint256 creatorProceeds = msg.value - fee;
         
-        payable(owner).transfer(fee);
+        (bool successOwner, ) = payable(owner).call{value: fee}("");
+        require(successOwner, "Transfer failed");
         
         uint256 escrowId = nextEscrowId++;
         escrows[escrowId] = Escrow({
@@ -238,10 +247,12 @@ contract OpenAgentRegistry is ReentrancyGuard {
             if (_buyerPayout == escrow.amount) {
                 hasAccess[escrow.agentId][escrow.buyer] = false;
             }
-            payable(escrow.buyer).transfer(_buyerPayout);
+            (bool s1, ) = payable(escrow.buyer).call{value: _buyerPayout}("");
+            require(s1, "Transfer failed");
         }
         if (_creatorPayout > 0) {
-            payable(escrow.creator).transfer(_creatorPayout);
+            (bool s2, ) = payable(escrow.creator).call{value: _creatorPayout}("");
+            require(s2, "Transfer failed");
         }
 
         if (_buyerPayout > _creatorPayout) {
@@ -255,7 +266,8 @@ contract OpenAgentRegistry is ReentrancyGuard {
             
             if (slashAmount > 0) {
                 creatorBonds[escrow.creator] -= slashAmount;
-                payable(insurancePool).transfer(slashAmount);
+                (bool s3, ) = payable(insurancePool).call{value: slashAmount}("");
+                require(s3, "Transfer failed");
                 emit CreatorSlashed(escrow.creator, slashAmount);
             }
         }
@@ -269,7 +281,8 @@ contract OpenAgentRegistry is ReentrancyGuard {
         require(block.timestamp >= escrow.expiryAt, "Escrow window not yet expired");
 
         escrow.state = EscrowState.FINALIZED;
-        payable(escrow.creator).transfer(escrow.amount);
+        (bool success, ) = payable(escrow.creator).call{value: escrow.amount}("");
+        require(success, "Transfer failed");
 
         emit EscrowFinalized(_escrowId, escrow.creator, escrow.amount);
     }
@@ -321,15 +334,23 @@ contract OpenAgentRegistry is ReentrancyGuard {
         return id;
     }
 
-    function placeBid(uint256 _id) external payable {
+    function withdrawPending() external nonReentrant {
+        uint256 amount = pendingWithdrawals[msg.sender];
+        require(amount > 0, "No pending funds");
+        pendingWithdrawals[msg.sender] = 0;
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Withdraw failed");
+    }
+
+    function placeBid(uint256 _id) external payable nonReentrant {
         Auction storage auction = auctions[_id];
         require(auction.active, "Auction not active");
         require(block.timestamp < auction.endTime, "Auction ended");
         require(msg.value > auction.highestBid, "Bid too low");
 
-        // Refund previous bidder
+        // Refund previous bidder (Pull-over-Push)
         if (auction.highestBidder != address(0)) {
-            auction.highestBidder.transfer(auction.highestBid);
+            pendingWithdrawals[auction.highestBidder] += auction.highestBid;
         }
 
         auction.highestBid = msg.value;
@@ -338,7 +359,7 @@ contract OpenAgentRegistry is ReentrancyGuard {
         emit BidPlaced(_id, msg.sender, msg.value);
     }
 
-    function settleAuction(uint256 _id) external {
+    function settleAuction(uint256 _id) external nonReentrant {
         Auction storage auction = auctions[_id];
         require(block.timestamp >= auction.endTime, "Auction still live");
         require(!auction.settled, "Already settled");
@@ -350,8 +371,10 @@ contract OpenAgentRegistry is ReentrancyGuard {
             uint256 fee = (auction.highestBid * platformFee) / 1000;
             uint256 sellerProceeds = auction.highestBid - fee;
             
-            payable(owner).transfer(fee);
-            auction.seller.transfer(sellerProceeds);
+            (bool sf, ) = payable(owner).call{value: fee}("");
+            require(sf, "Fee transfer failed");
+            (bool ss, ) = auction.seller.call{value: sellerProceeds}("");
+            require(ss, "Seller transfer failed");
             
             emit AuctionSettled(_id, auction.highestBidder, auction.highestBid);
         }

@@ -1,6 +1,6 @@
 # Escrow & Disputes
 
-OpenAgent includes a safety layer to protect Collectors from low-quality or non-functioning agents. This is handled via an on-chain Escrow system with an integrated Dispute resolution mechanism.
+SAW includes a safety layer to protect Collectors from low-quality or non-functioning agents. This is handled via an on-chain Escrow system with an integrated Dispute resolution mechanism.
 
 ## The Escrow Window
 When a Collector purchases an agent, the payment is not sent directly to the Builder's wallet. Instead, it is held in a smart contract escrow for a **72-hour protection window**.

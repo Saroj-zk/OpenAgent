@@ -1,10 +1,10 @@
 ================================================================================
-OPENAGENT PROTOCOL: TECHNICAL DOCUMENTATION AND ECOSYSTEM OVERVIEW
+saw PROTOCOL: TECHNICAL DOCUMENTATION AND ECOSYSTEM OVERVIEW
 ================================================================================
 
 1. EXECUTIVE SUMMARY
 --------------------------------------------------------------------------------
-OpenAgent is a decentralized, high-end AI agent marketplace designed for the 
+SAW is a decentralized, high-end AI agent marketplace designed for the 
 exchange and distribution of autonomous digital entities. Built on the 
 principles of cryptographic ownership and direct protocol transfers, it allows 
 developers (Builders) to list verified AI agents and users (Collectors) to 
@@ -12,9 +12,9 @@ acquire them through secure on-chain transactions or competitive auctions.
 
 2. THE "SIMPLE" EXPLAINER
 --------------------------------------------------------------------------------
-Think of OpenAgent as an "App Store for AI Agents," but without the middleman. 
+Think of SAW as an "App Store for AI Agents," but without the middleman. 
 In a traditional store, the company owns the platform and controls the logic. 
-In OpenAgent, the "rules" of the store are written in Smart Contracts on the 
+In SAW, the "rules" of the store are written in Smart Contracts on the 
 blockchain.
 
 - IF YOU ARE A BUILDER: You create a specialized AI (like a trading bot or a 
@@ -31,7 +31,7 @@ The application utilizes a modern "Web3 Shell" stack to ensure performance
 and decentralization:
 
 A. SMART CONTRACT LAYER (Solidity):
-   - OpenAgentRegistry.sol: The core protocol logic. It handles the 
+   - SAWRegistry.sol: The core protocol logic. It handles the 
      decentralized minting of agent IDs, manages the escrow for auctions, 
      and enforces the 2.5% protocol fee.
    - On-Chain Identity: Users claim unique usernames (e.g., @lonewolf) that 
@@ -62,7 +62,7 @@ C. FRONTEND (React & ethers.js):
 - CRYPTOGRAPHIC IDENTITY: Establish a permanent on-chain reputation as a 
   reputable builder in the AI ecosystem.
 
-5. KEY BENEFITS of OPENAGENT
+5. KEY BENEFITS of saw
 --------------------------------------------------------------------------------
 - TRUSTLESS TRANSACTIONS: No escrow or third-party approval is needed. 
   Transactions are atomic (meaning the payment and ownership transfer 

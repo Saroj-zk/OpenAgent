@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Portal.css';
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 const PortalLogin = () => {
     const [email, setEmail] = useState('');
@@ -17,7 +17,7 @@ const PortalLogin = () => {
         setLoading(true);
 
         try {
-            const res = await fetch(`${API_URL}/api/portal/login`, {
+            const res = await fetch(`${API_URL}/api/portal/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -52,7 +52,7 @@ const PortalLogin = () => {
                     <input
                         type="email"
                         className="portal-input"
-                        placeholder="admin@openagent.ai"
+                        placeholder="admin@saw.ai"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -73,7 +73,7 @@ const PortalLogin = () => {
                     </button>
 
                     <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
-                        &copy; 2026 OpenAgent Management Interface
+                        &copy; 2026 SAW Management Interface
                     </div>
                 </form>
             </div>

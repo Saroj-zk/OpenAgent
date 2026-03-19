@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('../config/loadEnv');
 const { ethers } = require('ethers');
 const mongoose = require('mongoose');
 const Agent = require('../models/Agent');
@@ -27,7 +27,7 @@ const ABI = [
 const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
 
 async function startIndexer() {
-    console.log(`📡 Indexer: Listening to OpenAgentRegistry at ${CONTRACT_ADDRESS}...`);
+    console.log(`📡 Indexer: Listening to SAWRegistry at ${CONTRACT_ADDRESS}...`);
 
     contract.on("AgentListed", async (id, creator, price, event) => {
         console.log(`\n🔔 New Agent Listed on-chain: ID ${id}`);

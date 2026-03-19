@@ -54,7 +54,7 @@ const Staking = () => {
                 <div className="staking-label"><Shield size={14} /> Trust Score Engine</div>
                 <h1 className="staking-title">Stake & Elevate.</h1>
                 <p className="staking-description">
-                    Secure the OpenAgent network by staking your <strong>ETH</strong>. Staking directly boosts your <strong>Trust Score</strong>, granting higher-tier credibility and unlocking premium marketplace functionality.
+                    Secure the SAW network by staking your <strong>ETH</strong>. Staking directly boosts your <strong>Trust Score</strong>, granting higher-tier credibility and unlocking premium marketplace functionality.
                 </p>
             </div>
 

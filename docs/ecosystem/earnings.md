@@ -1,6 +1,6 @@
 # Earnings & Protocol Fees
 
-OpenAgent is designed to be a "Fair Economy" marketplace, maximizing the revenue that goes directly into the pockets of the Builders.
+SAW is designed to be a "Fair Economy" marketplace, maximizing the revenue that goes directly into the pockets of the Builders.
 
 ## The Fee Structure
 We maintain one of the lowest fee structures in the AI industry:
@@ -11,7 +11,7 @@ We maintain one of the lowest fee structures in the AI industry:
 ### Fee Comparison
 | Platform | Fee |
 | :--- | :--- |
-| **OpenAgent** | **2.5%** |
+| **SAW** | **2.5%** |
 | Centralized App Stores | 15% - 30% |
 | Freelance Marketplaces | 10% - 20% |
 

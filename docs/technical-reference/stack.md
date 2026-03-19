@@ -1,6 +1,6 @@
 # Technical Stack
 
-OpenAgent is built using a "Web 2.5" architecture, combining the immutability of blockchain with the performance of modern web technologies.
+SAW is built using a "Web 2.5" architecture, combining the immutability of blockchain with the performance of modern web technologies.
 
 ## Core Stack
 

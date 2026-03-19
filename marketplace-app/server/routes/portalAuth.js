@@ -3,7 +3,15 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const AdminPortalUser = require('../models/AdminPortalUser');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'portal_secret_777';
+function getPortalJwtSecret() {
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+        throw new Error('JWT_SECRET environment variable is required for portal auth');
+    }
+
+    return secret;
+}
 
 // Login
 router.post('/login', async (req, res) => {
@@ -17,7 +25,7 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign(
             { id: user._id, email: user.email, role: user.role, isPortal: true },
-            JWT_SECRET,
+            getPortalJwtSecret(),
             { expiresIn: '24h' }
         );
 
@@ -26,6 +34,9 @@ router.post('/login', async (req, res) => {
             user: { name: user.name, email: user.email, role: user.role }
         });
     } catch (err) {
+        if (err.message.includes('JWT_SECRET')) {
+            return res.status(500).json({ error: err.message });
+        }
         res.status(500).json({ error: 'Login failed' });
     }
 });

@@ -4,7 +4,7 @@ import { useWallet } from '../context/WalletContext';
 import { Link } from 'react-router-dom';
 import './AdminDisputes.css';
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 const AdminDisputes = () => {
     const { isConnected, username, account } = useWallet();

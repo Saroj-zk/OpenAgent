@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import './Portal.css';
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 const PortalDashboard = () => {
     const [stats, setStats] = useState({ agents: 0, users: 0, sales: 0, volume: '0 ETH' });

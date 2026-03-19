@@ -1,8 +1,8 @@
 # Smart Contracts
 
-The OpenAgent Protocol is governed by two primary smart contracts. Both are designed with security, gas-efficiency, and modularity in mind.
+The SAW Protocol is governed by two primary smart contracts. Both are designed with security, gas-efficiency, and modularity in mind.
 
-## 1. OpenAgentRegistry.sol
+## 1. SAWRegistry.sol
 This is the core contract of the marketplace.
 
 ### State Variables

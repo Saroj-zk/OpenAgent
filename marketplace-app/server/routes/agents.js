@@ -14,27 +14,39 @@ const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { canAccess } = require('../services/accessService');
 
 const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3001}`;
+const hasS3Config = Boolean(
+    process.env.AWS_ACCESS_KEY_ID &&
+    process.env.AWS_SECRET_ACCESS_KEY &&
+    process.env.S3_BUCKET_NAME
+);
 
-const s3Client = new S3Client({
-    region: process.env.AWS_REGION || "auto",
-    endpoint: process.env.S3_ENDPOINT || undefined,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || "mock-key",
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "mock-secret",
-    }
-});
+const s3Client = hasS3Config
+    ? new S3Client({
+        region: process.env.AWS_REGION || "auto",
+        endpoint: process.env.S3_ENDPOINT || undefined,
+        credentials: {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+        }
+    })
+    : null;
 
 async function uploadToS3(buffer, filename, mimetype) {
-    if (process.env.AWS_ACCESS_KEY_ID) {
+    if (hasS3Config && s3Client) {
         const key = `${Date.now()}-${filename.replace(/\s+/g, '_')}`;
         await s3Client.send(new PutObjectCommand({
-            Bucket: process.env.S3_BUCKET_NAME || 'openagent-bucket',
+            Bucket: process.env.S3_BUCKET_NAME,
             Key: key,
             Body: buffer,
             ContentType: mimetype
         }));
         return process.env.S3_PUBLIC_URL ? `${process.env.S3_PUBLIC_URL}/${key}` : `https://${process.env.S3_BUCKET_NAME}.s3.amazonaws.com/${key}`;
     }
+
+    if ((process.env.NODE_ENV || '').toLowerCase() === 'production') {
+        throw new Error('S3 storage is not configured for production uploads');
+    }
+
     return `https://mock-s3-url.com/${filename}`;
 }
 
@@ -81,12 +93,13 @@ router.get('/', async (req, res) => {
 router.post('/', authenticateToken, cpUpload, async (req, res) => {
     try {
         const validatedData = AgentSchema.parse(req.body);
-        const {
-            id, name, role, price, currency, description, owner, github, model,
+        let {
+            id, name, role, price, currency, description, github, model,
             version, contextWindow, architecture, framework, apiDependencies,
             inferenceService, license, tags, videoLink, website, discord, telegram, docs, txHash,
             pricingModel, deliveryType
         } = validatedData;
+        const owner = req.user.address;
 
         const imageFile = req.files && req.files['image'] ? req.files['image'][0] : null;
         const codeZip = req.files && req.files['agentCode'] ? req.files['agentCode'][0] : null;
@@ -232,8 +245,13 @@ router.put('/:id', authenticateToken, cpUpload, async (req, res) => {
 
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
+        const agent = await Agent.findOne({ id: req.params.id });
+        if (!agent) return res.status(404).json({ error: 'Agent not found' });
+        if (agent.creator?.toLowerCase() !== req.user.address.toLowerCase() && agent.owner?.toLowerCase() !== req.user.address.toLowerCase()) {
+            return res.status(403).json({ error: 'Not authorized' });
+        }
+
         const result = await Agent.deleteOne({ id: req.params.id });
-        if (result.deletedCount === 0) return res.status(404).json({ error: 'Agent not found' });
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Failed' });
@@ -241,10 +259,10 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 // DOWNLOAD AGENT CODE
-router.get('/:id/download', async (req, res) => {
+router.get('/:id/download', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const buyer = req.query.buyer?.toLowerCase();
+        const buyer = req.user.address.toLowerCase();
         if (!buyer) return res.status(400).json({ error: 'Wallet address required' });
 
         const agent = await Agent.findOne({ id });

@@ -1,5 +1,16 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'portal_secret_777';
+
+function getPortalJwtSecret() {
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+        const error = new Error('JWT_SECRET environment variable is required for portal auth');
+        error.statusCode = 500;
+        throw error;
+    }
+
+    return secret;
+}
 
 module.exports = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
@@ -9,11 +20,14 @@ module.exports = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, getPortalJwtSecret());
         if (!decoded.isPortal) throw new Error('Invalid token type');
         req.portalUser = decoded;
         next();
     } catch (err) {
+        if (err.statusCode) {
+            return res.status(err.statusCode).json({ error: err.message });
+        }
         res.status(401).json({ error: 'Unauthorized Portal Access' });
     }
 };

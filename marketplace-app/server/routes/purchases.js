@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const Purchase = require('../models/Purchase');
 const authenticateToken = require('../middleware/authMiddleware');
+const { PURCHASE_STATUS } = require('../utils/purchaseStatus');
 
 const Agent = require('../models/Agent');
 const trustEngine = require('../utils/trustEngine');
 
 router.post('/', authenticateToken, async (req, res) => {
-    const { agentId, buyer, txHash } = req.body;
+    const { agentId, txHash } = req.body;
+    const buyer = req.user.address;
     if (!agentId || !buyer) return res.status(400).json({ error: 'Missing data' });
     try {
         const buyerLower = buyer.toLowerCase();
@@ -44,7 +46,8 @@ router.post('/', authenticateToken, async (req, res) => {
             trustTierSnapshot: creatorTier,
             escrowHours,
             categorySnapshot: isHighRisk ? 'HighRisk' : 'Standard',
-            expiryAt
+            expiryAt,
+            status: PURCHASE_STATUS.CREATED
         };
         if (txHash) {
             updateData.txHash = txHash;

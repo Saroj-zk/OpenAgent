@@ -1,6 +1,6 @@
 # Trust Engine
 
-The OpenAgent Trust Engine is a sophisticated reputation system that quantifies the reliability and expertise of participants. It combines on-chain metrics with off-chain behavioral analysis to calculate a **Trust Score (0-300)**.
+The SAW Trust Engine is a sophisticated reputation system that quantifies the reliability and expertise of participants. It combines on-chain metrics with off-chain behavioral analysis to calculate a **Trust Score (0-300)**.
 
 ## Trust Tiers
 Reputation is categorized into four distinct tiers:
@@ -34,4 +34,4 @@ Builders receive a boost based on the success of their agents.
 Reputation requires maintenance. If a user is inactive for more than 7 days, their score begins to decay at a rate of 3–8% per day of inactivity.
 
 ## Synchronization
-The Trust Engine runs as a modular Node.js service. Once a score is recalculated, it is asynchronously synced to the `OpenAgentRegistry.sol` smart contract via the `ChainSync` module, ensuring that trust is verifiable on-chain.
+The Trust Engine runs as a modular Node.js service. Once a score is recalculated, it is asynchronously synced to the `SAWRegistry.sol` smart contract via the `ChainSync` module, ensuring that trust is verifiable on-chain.

@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Run Hardhat tests
+        run: npm test
+
+  marketplace-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: marketplace-app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: marketplace-app/package-lock.json
+
+      - name: Install marketplace dependencies
+        run: npm ci
+
+      - name: Build marketplace app
+        run: npm run build
+
+  admin-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-portal
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: admin-portal/package-lock.json
+
+      - name: Install admin portal dependencies
+        run: npm ci
+
+      - name: Build admin portal
+        run: npm run build
+
+  server-sanity:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: marketplace-app/server
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: marketplace-app/server/package-lock.json
+
+      - name: Install server dependencies
+        run: npm ci
+
+      - name: Validate environment contract
+        env:
+          JWT_SECRET: abcdefghijklmnopqrstuvwxyz123456
+        run: npm run verify:env
+
+  compose-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose file
+        run: docker compose -f docker-compose.production.yml config

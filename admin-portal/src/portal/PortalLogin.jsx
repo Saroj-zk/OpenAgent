@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import './Portal.css';
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 const PortalLogin = () => {
     const [email, setEmail] = useState('');
@@ -18,7 +18,7 @@ const PortalLogin = () => {
         setLoading(true);
 
         try {
-            const res = await fetch(`${API_URL}/api/portal/login`, {
+            const res = await fetch(`${API_URL}/api/portal/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -81,7 +81,7 @@ const PortalLogin = () => {
                                     type="email"
                                     className="portal-input"
                                     style={{ paddingLeft: '48px' }}
-                                    placeholder="admin@agentbase.ai"
+                                    placeholder="admin@saw.ai"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -115,7 +115,7 @@ const PortalLogin = () => {
                     </form>
 
                     <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '13px', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div>&copy; 2026 AgentBase Collective</div>
+                        <div>&copy; 2026 SAW Collective</div>
                         <div style={{ fontSize: '11px', opacity: 0.6 }}>Internal Use Only &bull; Secured with Protocol-Level Encryption</div>
                     </div>
                 </div>
