@@ -39,7 +39,7 @@ const Features = () => {
                         </h3>
 
                         <p style={{ color: 'var(--text-secondary)', fontSize: '20px', lineHeight: '1.7', marginBottom: '56px', maxWidth: '540px', fontWeight: '450' }}>
-                            AgentBase is a decentralized infrastructure for independent creators. Every agent listed here is a testament to high-performance logic—untethered from corporate silos and optimized for the open economy.
+                            SAW is a decentralized infrastructure for independent creators. Every agent listed here is a testament to high-performance logic—untethered from corporate silos and optimized for the open economy.
                         </p>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>

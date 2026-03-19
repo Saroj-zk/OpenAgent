@@ -1,5 +1,6 @@
 const Purchase = require('../models/Purchase');
 const Subscription = require('../models/Subscription');
+const { statusAllowsAccess } = require('../utils/purchaseStatus');
 
 async function canAccess(agentId, walletAddress) {
     if (!agentId || !walletAddress) return false;
@@ -12,7 +13,7 @@ async function canAccess(agentId, walletAddress) {
         buyer: addressLower
     });
 
-    if (purchase && purchase.status !== 'DISPUTED') {
+    if (purchase && statusAllowsAccess(purchase.status)) {
         return true;
     }
 

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import './Portal.css';
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 const PortalDashboard = () => {
     const [stats, setStats] = useState({ agents: 0, users: 0, sales: 0, volume: '0 ETH', registryAddress: '' });
@@ -107,7 +107,7 @@ const PortalDashboard = () => {
                     <div style={{ width: '36px', height: '36px', background: '#3b82f6', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
                         <Shield size={20} />
                     </div>
-                    <span>AgentBase Admin</span>
+                    <span>SAW Admin</span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>

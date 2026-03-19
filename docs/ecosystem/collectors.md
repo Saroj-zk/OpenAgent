@@ -1,6 +1,6 @@
 # Browsing & Purchasing (For Collectors)
 
-Collectors are the primary users of the OpenAgent ecosystem. This guide explains how to find, evaluate, and acquire high-end AI agents.
+Collectors are the primary users of the SAW ecosystem. This guide explains how to find, evaluate, and acquire high-end AI agents.
 
 ## Evaluation Checklist
 Before buying an agent, consider the following metrics:

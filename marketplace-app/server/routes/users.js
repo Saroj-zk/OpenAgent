@@ -7,8 +7,8 @@ const trustEngine = require('../utils/trustEngine');
 
 // STAKING
 router.post('/stake', authenticateToken, async (req, res) => {
-    const { username, amount, lockDays } = req.body;
-    const identifier = username?.toLowerCase();
+    const { amount, lockDays } = req.body;
+    const identifier = req.user.address.toLowerCase();
     try {
         const user = await User.findOne({
             $or: [{ username: identifier }, { address: identifier }]
@@ -36,8 +36,8 @@ router.post('/stake', authenticateToken, async (req, res) => {
 });
 
 router.post('/unstake', authenticateToken, async (req, res) => {
-    const { username, amount } = req.body;
-    const identifier = username?.toLowerCase();
+    const { amount } = req.body;
+    const identifier = req.user.address.toLowerCase();
     try {
         const user = await User.findOne({
             $or: [{ username: identifier }, { address: identifier }]
@@ -68,16 +68,17 @@ router.post('/unstake', authenticateToken, async (req, res) => {
 
 // CONTRIBUTIONS
 router.post('/contributions', authenticateToken, async (req, res) => {
-    const { username, type, points } = req.body;
+    const { type, points } = req.body;
     try {
-        const user = await User.findOne({ username });
+        const identifier = req.user.address.toLowerCase();
+        const user = await User.findOne({ address: identifier });
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         user.contribution_points_lifetime = (user.contribution_points_lifetime || 0) + points;
         user.contribution_points_rolling_30d = (user.contribution_points_rolling_30d || 0) + points;
 
         await user.save();
-        await trustEngine.updateTrustScore(username, points * 0.1, `contribution_${type}`);
+        await trustEngine.updateTrustScore(user.username || user.address, points * 0.1, `contribution_${type}`);
 
         res.json({ success: true, lifetime: user.contribution_points_lifetime });
     } catch (err) {

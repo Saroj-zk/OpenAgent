@@ -4,6 +4,7 @@ const Purchase = require('./models/Purchase');
 const IndexerState = require('./models/IndexerState');
 const BlockchainEvent = require('./models/BlockchainEvent');
 const Subscription = require('./models/Subscription');
+const { PURCHASE_STATUS } = require('./utils/purchaseStatus');
 
 const CONFIRMATIONS = 10;
 
@@ -120,7 +121,7 @@ async function startIndexer() {
                     const buyerStr = parsedData.buyer;
                     await Purchase.findOneAndUpdate(
                         { agentId: idStr, buyer: buyerStr, txHash: transactionHash },
-                        { agentId: idStr, buyer: buyerStr, txHash: transactionHash, status: 'completed' }, // mapped to created soon
+                        { agentId: idStr, buyer: buyerStr, txHash: transactionHash, status: PURCHASE_STATUS.COMPLETED },
                         { upsert: true }
                     );
                     console.log(`📡 [Indexer] Confirmed: Purchase agent ${idStr} by ${buyerStr}`);
@@ -136,15 +137,28 @@ async function startIndexer() {
                 } else if (eventName === "EscrowCreated") {
                     await Purchase.findOneAndUpdate(
                         { txHash: transactionHash },
-                        { escrowId: parsedData.escrowId, expiryAt: new Date(Number(parsedData.expiryAt) * 1000), status: 'CREATED' },
+                        {
+                            escrowId: parsedData.escrowId,
+                            expiryAt: new Date(Number(parsedData.expiryAt) * 1000),
+                            status: PURCHASE_STATUS.CREATED
+                        },
                         { upsert: true }
                     );
                 } else if (eventName === "DisputeOpened") {
-                    await Purchase.findOneAndUpdate({ escrowId: parsedData.escrowId }, { status: 'DISPUTED' });
+                    await Purchase.findOneAndUpdate(
+                        { escrowId: parsedData.escrowId },
+                        { status: PURCHASE_STATUS.DISPUTED }
+                    );
                 } else if (eventName === "DisputeResolved") {
-                    await Purchase.findOneAndUpdate({ escrowId: parsedData.escrowId }, { status: 'RESOLVED' });
+                    await Purchase.findOneAndUpdate(
+                        { escrowId: parsedData.escrowId },
+                        { status: PURCHASE_STATUS.RESOLVED }
+                    );
                 } else if (eventName === "EscrowFinalized") {
-                    await Purchase.findOneAndUpdate({ escrowId: parsedData.escrowId }, { status: 'FINALIZED' });
+                    await Purchase.findOneAndUpdate(
+                        { escrowId: parsedData.escrowId },
+                        { status: PURCHASE_STATUS.FINALIZED }
+                    );
                 } else if (eventName === "Subscribed" || eventName === "Extended") {
                     await Subscription.findOneAndUpdate(
                         { userAddress: parsedData.subscriber, agentId: parsedData.agentId },

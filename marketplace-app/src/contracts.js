@@ -697,7 +697,7 @@ export const REGISTRY_ABI = [
                 "type": "uint256"
             },
             {
-                "internalType": "enum OpenAgentRegistry.EscrowState",
+                "internalType": "enum SAWRegistry.EscrowState",
                 "name": "state",
                 "type": "uint8"
             },
@@ -809,7 +809,7 @@ export const REGISTRY_ABI = [
                         "type": "uint256"
                     },
                     {
-                        "internalType": "enum OpenAgentRegistry.EscrowState",
+                        "internalType": "enum SAWRegistry.EscrowState",
                         "name": "state",
                         "type": "uint8"
                     },
@@ -824,7 +824,7 @@ export const REGISTRY_ABI = [
                         "type": "bytes32"
                     }
                 ],
-                "internalType": "struct OpenAgentRegistry.Escrow",
+                "internalType": "struct SAWRegistry.Escrow",
                 "name": "",
                 "type": "tuple"
             }

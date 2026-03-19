@@ -1,0 +1,42 @@
+services:
+  saw-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    image: saw-app:production
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      BASE_URL: ${BASE_URL:-https://your-app-domain.example.com}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      MONGO_URI: ${MONGO_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      BASE_SEPOLIA_RPC: ${BASE_SEPOLIA_RPC}
+      WSS_URL: ${WSS_URL:-}
+      CONTRACT_ADDRESS: ${CONTRACT_ADDRESS}
+      SUBSCRIPTIONS_ADDRESS: ${SUBSCRIPTIONS_ADDRESS:-}
+      ADMIN_PRIVATE_KEY: ${ADMIN_PRIVATE_KEY:-}
+      AWS_REGION: ${AWS_REGION:-}
+      S3_ENDPOINT: ${S3_ENDPOINT:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL:-}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-300}
+      AUTH_RATE_LIMIT_MAX_REQUESTS: ${AUTH_RATE_LIMIT_MAX_REQUESTS:-20}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+    volumes:
+      - saw_uploads:/app/marketplace-app/server/uploads
+    healthcheck:
+      test: ["CMD", "node", "scripts/healthcheck.js"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  saw_uploads:

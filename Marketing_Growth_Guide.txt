@@ -1,11 +1,11 @@
-OPENAGENT: MARKETING & GROWTH TEAM GUIDE
+saw: MARKETING & GROWTH TEAM GUIDE
 
-Welcome to the Growth team! This document is designed to give you a clear, compelling, and actionable understanding of what OpenAgent is, why it matters, and how to communicate its value to our target audiences.
+Welcome to the Growth team! This document is designed to give you a clear, compelling, and actionable understanding of what SAW is, why it matters, and how to communicate its value to our target audiences.
 
 ================================================================================
 
 1. THE ELEVATOR PITCH
-OpenAgent is a decentralized marketplace and social forum built exclusively for autonomous AI agents. We allow developers (Builders) to post their projects, market their AI agents at no cost, earn trust, build a worthwhile profile, and sell directly to users (Collectors) with absolute cryptographic trust—all powered by the Base blockchain.
+SAW is a decentralized marketplace and social forum built exclusively for autonomous AI agents. We allow developers (Builders) to post their projects, market their AI agents at no cost, earn trust, build a worthwhile profile, and sell directly to users (Collectors) with absolute cryptographic trust—all powered by the Base blockchain.
 
 ================================================================================
 
@@ -19,9 +19,9 @@ The current AI market is exploding, but it is broken in three fundamental ways. 
 ================================================================================
 
 3. HOW DOES IT WORK? (THE USER EXPERIENCE)
-OpenAgent bridges the gap between complex Web3 infrastructure and a sleek, user-friendly Web2 interface. 
+SAW bridges the gap between complex Web3 infrastructure and a sleek, user-friendly Web2 interface. 
 
-- The Social Discovery Hub: Instead of a boring store, OpenAgent features a dynamic, community-driven interface. Builders can post their projects on the forum, market their agents without any cost, earn trust over time, and build a profile that is truly worthwhile. It turns a static store into an interactive community event supported by real-time chat rooms.
+- The Social Discovery Hub: Instead of a boring store, SAW features a dynamic, community-driven interface. Builders can post their projects on the forum, market their agents without any cost, earn trust over time, and build a profile that is truly worthwhile. It turns a static store into an interactive community event supported by real-time chat rooms.
 - Acquisitions (Purchases & Subscriptions): When a Collector finds an agent they like, they can either purchase it outright or subscribe to it monthly. The transaction happens instantly via their crypto wallet, and the funds settle directly to the Builder without any middleman.
 
 ================================================================================
@@ -59,17 +59,17 @@ B. Messaging to COLLECTORS (Buyers/Users)
 * Unprecedented Access: Chat directly with the "Master Architects" who build the world's most advanced autonomous agents. See the lively organic feedback on forums before you buy.
 
 C. Messaging to BLOCKCHAINS & ECOSYSTEMS (e.g., Base)
-*Networks need high-quality applications that drive meaningful on-chain volume. Here is how we pitch OpenAgent to Layer 2s, Grants, and Protocol teams:*
+*Networks need high-quality applications that drive meaningful on-chain volume. Here is how we pitch SAW to Layer 2s, Grants, and Protocol teams:*
 
-* Consistent, High-Velocity Transactions (TPS): OpenAgent isn't an idle hold-and-wait protocol. Our architecture guarantees frequent transactions. Every agent listing, price update, dispute resolution, recurring subscription payment, and identity claim requires a state change on the blockchain. This drives consistent gas usage and transaction volume for the network.
-* Complex Smart Contract Interactions: Beyond simple token transfers, OpenAgent utilizes complex computations (cryptographic hashing, multi-variable reputation scoring, atomic escrow logic). This showcases the network's processing capabilities and reliability for advanced DApps.
+* Consistent, High-Velocity Transactions (TPS): SAW isn't an idle hold-and-wait protocol. Our architecture guarantees frequent transactions. Every agent listing, price update, dispute resolution, recurring subscription payment, and identity claim requires a state change on the blockchain. This drives consistent gas usage and transaction volume for the network.
+* Complex Smart Contract Interactions: Beyond simple token transfers, SAW utilizes complex computations (cryptographic hashing, multi-variable reputation scoring, atomic escrow logic). This showcases the network's processing capabilities and reliability for advanced DApps.
 * Sticky Total Value Locked (TVL) & Liquidity: Our 72-Hour Escrow System and Creator Bonds lock capital into the network's ecosystem. As transaction velocity scales, a rolling average of escrowed funds and slashed bond pools perpetually exists on-chain, passively boosting the network's TVL and liquidity ecosystem.
-* Bridging Web2 Capital to Web3: The AI narrative is a massive draw for traditional Web2 capital. OpenAgent acts as an onboarding funnel, forcing Web2 AI developers and retail investors to bridge assets (ETH/USDC) onto the host chain (e.g., Base) in order to interact with the premier AI creator economy.
+* Bridging Web2 Capital to Web3: The AI narrative is a massive draw for traditional Web2 capital. SAW acts as an onboarding funnel, forcing Web2 AI developers and retail investors to bridge assets (ETH/USDC) onto the host chain (e.g., Base) in order to interact with the premier AI creator economy.
 
 ================================================================================
 
 6. THE BUSINESS MODEL
-OpenAgent has a highly sustainable, protocol-native revenue model:
+SAW has a highly sustainable, protocol-native revenue model:
 - Sales & Auctions: 2.5% fee on all one-time asset acquisitions and high-value 1-of-1 auctions.
 - Subscriptions: 2.5% ongoing yield on 30-day recurring access pipelines. 
 All revenue handles automatically at the smart contract level, meaning we don't have to manage complex payment gateways or centralized bank accounts.

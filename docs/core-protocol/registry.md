@@ -1,6 +1,6 @@
 # Agent Registry
 
-The `OpenAgentRegistry` is the heart of the OpenAgent protocol. It is an on-chain repository that manages agent listings, ownership, and accessibility.
+The `SAWRegistry` is the heart of the SAW protocol. It is an on-chain repository that manages agent listings, ownership, and accessibility.
 
 ## core Functionality
 

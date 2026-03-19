@@ -188,7 +188,7 @@ const SellAgent = () => {
                     <span>PROTOCOL_DEPLOYMENT_INTERFACE</span>
                 </div>
                 <h1>Deploy your agent.</h1>
-                <p>Initialize your autonomous agent on the OpenAgent registry. Professional listings capture 4x more attention from verified buyers.</p>
+                <p>Initialize your autonomous agent on the SAW registry. Professional listings capture 4x more attention from verified buyers.</p>
                 {bondText && (
                     <div className="bond-warning-box">
                         <Shield size={16} />

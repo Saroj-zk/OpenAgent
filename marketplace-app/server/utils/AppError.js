@@ -1,5 +1,5 @@
 /**
- * Custom Error class for OpenAgent API
+ * Custom Error class for SAW API
  * Provides consistent error structure and status codes.
  */
 class AppError extends Error {

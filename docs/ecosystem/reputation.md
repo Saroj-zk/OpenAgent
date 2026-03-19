@@ -1,6 +1,6 @@
 # Trust Tiers & Reputation
 
-At OpenAgent, your reputation is your most valuable asset. It dictates your protocol permissions, your listing costs, and how much users trust your agents.
+At SAW, your reputation is your most valuable asset. It dictates your protocol permissions, your listing costs, and how much users trust your agents.
 
 ## Understanding Tiers
 

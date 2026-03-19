@@ -5,10 +5,14 @@ const ethers = require('ethers');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const TrustEngine = require('../trust-engine/TrustEngine');
+const { getRequiredEnv } = require('../config/env');
 const trustEngine = new TrustEngine();
 
 const nonces = {};
-const JWT_SECRET = process.env.JWT_SECRET || 'openagent_secure_secret_fallback_123';
+
+function getJwtSecret() {
+    return getRequiredEnv('JWT_SECRET');
+}
 
 router.get('/nonce', (req, res) => {
     const { address } = req.query;
@@ -17,11 +21,15 @@ router.get('/nonce', (req, res) => {
     const formattedAddress = address.toLowerCase();
     const nonce = crypto.randomBytes(16).toString('hex');
 
-    // Support multiple active nonces to handle React StrictMode dual-mounts
+    // Memory protection - cap active addresses to prevent unbounded growth.
+    if (Object.keys(nonces).length > 10000) {
+        const oldestKey = Object.keys(nonces)[0];
+        delete nonces[oldestKey];
+    }
+
     if (!nonces[formattedAddress]) nonces[formattedAddress] = [];
     nonces[formattedAddress].push(nonce);
 
-    // Keep only the last 3 nonces to prevent memory bloat
     if (nonces[formattedAddress].length > 3) nonces[formattedAddress].shift();
 
     res.json({ nonce });
@@ -43,9 +51,8 @@ router.post('/verify', async (req, res) => {
         console.log(`--- Signature Verification for ${formattedAddress} ---`);
         console.log(`Checking against ${activeNonces.length} recent nonces.`);
 
-        // Check if signature matches any of the recently issued nonces for this address
         for (const nonce of activeNonces) {
-            const message = `Login to AgentBase with Nonce: ${nonce}`;
+            const message = `Login to SAW with Nonce: ${nonce}`;
             const recoveredAddress = ethers.verifyMessage(message, signature);
 
             if (recoveredAddress.toLowerCase() === formattedAddress) {
@@ -55,8 +62,8 @@ router.post('/verify', async (req, res) => {
         }
 
         if (validNonce) {
-            console.log("✅ Identity Match! Authorizing access.");
-            nonces[formattedAddress] = []; // Clear nonces after successful auth
+            console.log('Identity match. Authorizing access.');
+            nonces[formattedAddress] = [];
 
             let user = await User.findOne({ address: formattedAddress });
             if (!user) {
@@ -70,26 +77,23 @@ router.post('/verify', async (req, res) => {
                 await user.save();
             }
 
-            // --- TRUST ENFORCEMENT ---
-            // Recalculate trust on login and sync to chain
             const currentScore = await trustEngine.computeUserTrust(formattedAddress);
             console.log(`Trust score for ${formattedAddress} on login: ${currentScore}`);
 
             const token = jwt.sign(
                 { address: formattedAddress, username: user.username },
-                JWT_SECRET,
+                getJwtSecret(),
                 { expiresIn: '24h' }
             );
 
             res.json({ success: true, token, user });
         } else {
-            console.log("❌ Mismatch!");
-            console.log("- Recovered:", recoveredAddress.toLowerCase());
-            console.log("- Expected:", formattedAddress);
-            res.status(401).json({ error: 'Signature verification failed', recovered: recoveredAddress, expected: formattedAddress, msg: message });
+            console.log('Signature mismatch.');
+            console.log('- Expected:', formattedAddress);
+            res.status(401).json({ error: 'Signature verification failed', expected: formattedAddress });
         }
     } catch (error) {
-        console.error("Signature verify error:", error);
+        console.error('Signature verify error:', error);
         res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 });
@@ -104,7 +108,7 @@ router.get('/resume', authenticateToken, async (req, res) => {
         }
         res.json({ success: true, user });
     } catch (err) {
-        console.error("Resume Session Error:", err);
+        console.error('Resume session error:', err);
         res.status(500).json({ error: 'Failed to resume session' });
     }
 });

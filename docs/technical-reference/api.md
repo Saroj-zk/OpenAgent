@@ -1,6 +1,6 @@
 # API Reference
 
-The OpenAgent backend provides a RESTful API for interacting with the marketplace metadata, forum, and user profiles.
+The SAW backend provides a RESTful API for interacting with the marketplace metadata, forum, and user profiles.
 
 ## Base URL
 `http://localhost:3001/api` (Development)

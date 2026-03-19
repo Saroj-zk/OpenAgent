@@ -36,7 +36,7 @@ const Navbar = () => {
             <div className="container nav-content">
                 <Link to={location.pathname === '/welcome' ? "/welcome" : "/"} className="logo">
                     <Terminal size={22} color="#fff" />
-                    <span>AgentBase</span>
+                    <span>SAW</span>
                 </Link>
 
                 {location.pathname !== '/welcome' && (

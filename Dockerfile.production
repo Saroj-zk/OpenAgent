@@ -1,0 +1,32 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY marketplace-app/package*.json marketplace-app/
+COPY admin-portal/package*.json admin-portal/
+RUN npm ci --prefix marketplace-app --no-audit --no-fund
+RUN npm ci --prefix admin-portal --no-audit --no-fund
+
+COPY marketplace-app marketplace-app
+COPY admin-portal admin-portal
+
+RUN npm --prefix marketplace-app run build
+RUN npm --prefix admin-portal run build
+
+FROM node:20-alpine
+WORKDIR /app/marketplace-app/server
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+COPY marketplace-app/server/package*.json ./
+RUN npm ci --omit=dev --no-audit --no-fund
+
+COPY marketplace-app/server ./
+COPY --from=builder /app/marketplace-app/server/public ./public
+COPY --from=builder /app/marketplace-app/server/public-portal ./public-portal
+
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 CMD ["node", "scripts/healthcheck.js"]
+
+CMD ["node", "server.js"]

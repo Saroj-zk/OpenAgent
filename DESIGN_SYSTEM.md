@@ -1,4 +1,4 @@
-## OpenAgent Design System (v1)
+## SAW Design System (v1)
 
 ### Brand principles
 - **Trust-first**: every UI surface should communicate verification, provenance, and dispute safety.

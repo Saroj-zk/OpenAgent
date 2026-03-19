@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-require('dotenv').config();
+require('./load-env');
 
 async function forceSync() {
     const RPC_URL = "https://sepolia.base.org";

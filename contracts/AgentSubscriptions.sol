@@ -4,7 +4,15 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
+interface ISAWRegistry {
+    function agents(uint256 id) external view returns (
+        uint256 idx, address payable creator, uint256 price, bool active, bytes32 artifactHash
+    );
+}
+
 contract AgentSubscriptions is Ownable, ReentrancyGuard {
+    ISAWRegistry public registry;
+
     // subscriber => agentId => expiry timestamp
     mapping(address => mapping(uint256 => uint256)) public subscriptionExpiry;
     
@@ -19,11 +27,14 @@ contract AgentSubscriptions is Ownable, ReentrancyGuard {
     event Cancelled(address indexed subscriber, uint256 indexed agentId);
     event PriceUpdated(uint256 indexed agentId, uint256 price, address creator);
 
-    constructor() Ownable(msg.sender) {}
+    constructor(address _registry) Ownable(msg.sender) {
+        registry = ISAWRegistry(_registry);
+    }
 
     // Allow a creator to initialize their agent's subscription tier
     function setSubscriptionConfig(uint256 agentId, uint256 price, address creator) external {
-        require(agentCreator[agentId] == address(0) || agentCreator[agentId] == msg.sender || owner() == msg.sender, "Not authorized");
+        (, address payable actualCreator, , , ) = registry.agents(agentId);
+        require(actualCreator == msg.sender || owner() == msg.sender, "Not authorized");
         subscriptionPrice[agentId] = price;
         agentCreator[agentId] = creator;
         emit PriceUpdated(agentId, price, creator);

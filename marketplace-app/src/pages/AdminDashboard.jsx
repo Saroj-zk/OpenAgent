@@ -15,7 +15,7 @@ import { useWallet } from '../context/WalletContext';
 import { useNavigate, Link } from 'react-router-dom';
 import './AdminDashboard.css';
 
-const API_URL = import.meta.env.PROD ? '' : 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 const AdminDashboard = () => {
     const { isConnected, account, username } = useWallet();
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
             <header className="admin-dashboard-header">
                 <div>
                     <h1 className="text-glow">CONTROL_CHAMBER.</h1>
-                    <p>Aggregated network intelligence for the OpenAgent Collective.</p>
+                    <p>Aggregated network intelligence for the SAW Collective.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '16px' }}>
                     <button className="admin-nav-btn" onClick={() => navigate('/admin/disputes')}>

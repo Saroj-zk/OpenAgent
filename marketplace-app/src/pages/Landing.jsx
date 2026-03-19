@@ -44,7 +44,7 @@ const Landing = () => {
                     <div style={{ background: '#0f172a', padding: '6px', borderRadius: '8px' }}>
                         <Terminal size={20} color="#fff" />
                     </div>
-                    <span style={{ fontWeight: '800', fontSize: '18px' }}>OpenAgent</span>
+                    <span style={{ fontWeight: '800', fontSize: '18px' }}>SAW</span>
                 </div>
                 <button onClick={handleExplore} className="btn-teal" style={{ background: '#0f172a', color: '#fff', borderRadius: '10px' }}>
                     Explore Application
@@ -82,10 +82,10 @@ const Landing = () => {
 
                     <div style={{ marginTop: '40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px' }}>
                         <p className="section-text" style={{ fontSize: '18px', color: '#0f172a', fontWeight: '500' }}>
-                            OpenAgent provides the infrastructure for publishing and distributing autonomous agents through a trusted marketplace.
+                            SAW provides the infrastructure for publishing and distributing autonomous agents through a trusted marketplace.
                         </p>
                         <p className="section-text">
-                            Every listing includes verifiable artifacts, escrow-protected transactions, and creator reputation signals. From workflow automation to market analysis agents, OpenAgent enables builders to distribute intelligent systems globally.
+                            Every listing includes verifiable artifacts, escrow-protected transactions, and creator reputation signals. From workflow automation to market analysis agents, SAW enables builders to distribute intelligent systems globally.
                         </p>
                     </div>
                 </section>
@@ -109,7 +109,7 @@ const Landing = () => {
                             These intelligent systems monitor environments, analyze data, coordinate actions, and automate complex processes across digital ecosystems.
                         </p>
                         <p className="section-text">
-                            Despite their rapid growth, there is still no structured environment where these agents can be reliably distributed and discovered. OpenAgent introduces a marketplace designed specifically for autonomous agents.
+                            Despite their rapid growth, there is still no structured environment where these agents can be reliably distributed and discovered. SAW introduces a marketplace designed specifically for autonomous agents.
                         </p>
                         <p className="section-text">
                             Developers can publish their agents, while users can discover trusted systems capable of performing real tasks across automation, research, and analytics.
@@ -148,7 +148,7 @@ const Landing = () => {
 
                     <div style={{ marginTop: '60px', padding: '40px', background: '#f8fafc', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
                         <p className="section-text" style={{ fontSize: '18px', color: '#0f172a', marginBottom: 0 }}>
-                            As these systems become more powerful, they form an emerging digital economy of autonomous agents. OpenAgent provides the infrastructure that allows these agents to be published, evaluated, and transacted through a trusted marketplace.
+                            As these systems become more powerful, they form an emerging digital economy of autonomous agents. SAW provides the infrastructure that allows these agents to be published, evaluated, and transacted through a trusted marketplace.
                         </p>
                     </div>
                 </section>
@@ -157,7 +157,7 @@ const Landing = () => {
                 <section className="section-split-light">
                     <div>
                         <span className="section-marker">04 — PLATFORM FOUNDATIONS</span>
-                        <h2 className="section-title">Core Systems Behind OpenAgent</h2>
+                        <h2 className="section-title">Core Systems Behind SAW</h2>
                         <p className="section-subtitle">
                             The marketplace operates through four primary systems that ensure reliable distribution of AI agents.
                         </p>
@@ -203,7 +203,7 @@ const Landing = () => {
                     <span className="section-marker">05 — AGENT DISTRIBUTION PROTOCOL</span>
                     <h2 className="section-title">Infrastructure for Publishing AI Agents</h2>
                     <p className="section-text" style={{ maxWidth: '800px' }}>
-                        OpenAgent provides developers with the tools required to distribute autonomous agents securely. Creators upload agent packages containing the architecture, configuration, and metadata.
+                        SAW provides developers with the tools required to distribute autonomous agents securely. Creators upload agent packages containing the architecture, configuration, and metadata.
                     </p>
 
                     <div className="metrics-row">
@@ -263,7 +263,7 @@ const Landing = () => {
                         <span className="section-marker">06 — REPUTATION ENGINE</span>
                         <h2 className="section-title">Trust Signals for Autonomous Agents</h2>
                         <p className="section-text">
-                            OpenAgent maintains marketplace reliability through a dynamic reputation engine. Each creator receives a trust score between 0 and 300 based on their marketplace activity.
+                            SAW maintains marketplace reliability through a dynamic reputation engine. Each creator receives a trust score between 0 and 300 based on their marketplace activity.
                         </p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '30px' }}>
                             <div style={{ borderLeft: '2px solid #0d9488', paddingLeft: '16px' }}>
@@ -404,7 +404,7 @@ const Landing = () => {
                 <div className="footer-column">
                     <div className="footer-logo">
                         <Terminal size={24} color="#0d9488" />
-                        <span>OpenAgent</span>
+                        <span>SAW</span>
                     </div>
                     <p className="section-text" style={{ fontSize: '14px' }}>
                         Marketplace for discovering, publishing, and monetizing AI agents.

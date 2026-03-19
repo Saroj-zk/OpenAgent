@@ -24,4 +24,4 @@ Unlike licenses (which can be sold many times), winning a 1-of-1 auction gives y
 ## Auction Strategy
 *   **Watch the Gas**: On-chain auctions require a transaction for every bid. Monitor network gas prices to ensure your bid is confirmed in time.
 *   **Wallet Balance**: Ensure you have enough ETH to cover your bid plus gas fees.
-*   **Sync Refresh**: The OpenAgent UI uses real-time synchronization to show the latest bids. If your connection is unstable, refresh the page to ensure you are seeing the absolute current price.
+*   **Sync Refresh**: The SAW UI uses real-time synchronization to show the latest bids. If your connection is unstable, refresh the page to ensure you are seeing the absolute current price.
