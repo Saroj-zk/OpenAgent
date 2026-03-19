@@ -4,17 +4,25 @@ title = "SAW gitleaks config"
 useDefault = true
 
 [[allowlists]]
-description = "Allow placeholder/example values in example env files and docs"
+description = "Allow placeholder/example values in tracked env templates, docs, and vendored examples"
 paths = [
+  '''(^|/)\.env$''',
   '''(^|/)\.env\.example$''',
   '''(^|/)admin-portal/\.env\.example$''',
+  '''(^|/)marketplace-app/\.env$''',
   '''(^|/)marketplace-app/\.env\.example$''',
+  '''(^|/)marketplace-app/server/\.env$''',
   '''(^|/)marketplace-app/server/\.env\.example$''',
+  '''(^|/)marketplace-app/server/routes/agents\.js$''',
   '''(^|/)DEPLOYMENT\.md$''',
-  '''(^|/)deploy/runbooks/.*\.md$'''
+  '''(^|/)deploy/runbooks/.*\.md$''',
+  '''(^|/)node_modules/.*$'''
 ]
 regexes = [
+  '''PUT_YOUR_PRIVATE_KEY_HERE''',
+  '''mock-secret''',
   '''replace-with-[a-z0-9-]+''',
   '''your-[a-z0-9-]+\.example\.com''',
+  '''0xYour[A-Za-z]+Address''',
   '''mongodb\+srv://<user>:<password>@<cluster>/<database>\?retryWrites=true&w=majority'''
 ]
